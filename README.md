@@ -143,7 +143,7 @@ THANKS!
 
 ## 6. Example
 This project recommends using HTML format documents as the document format for all major settings. It can insert diverse content including text, images, videos, and audio to meet the documentation needs of the video generation field, while supporting real-time modification and dynamic display.
-Example website link
+Example website link：https://github.com/cmr5hp4pp7-hub/CMS-VFM--Character-Model-Sheet-of-Video-Foundation-Model/blob/main/Settings%26Asset%20Files/Example%20Based%20on%20readme.html
 
 ### 7. HTML Document Skills
 Source project link: https://github.com/zarazhangrui/frontend-slides
