@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMS-VFM (Example Based on readme.md Content)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0f0f0f;
+      --bg-card: #1a1a1a;
+      --text-primary: #e8e4df;
+      --text-secondary: #9a9590;
+      --accent-warm: #d4a574;
+      --accent-pink: #e8b4b8;
+      --accent-gold: #c9b896;
+      --accent-blue: #4a9eff;
+      --sidebar-bg: linear-gradient(180deg, #1a1d29 0%, #252936 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.8;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      font-weight: 300;
+    }
+
+    /* Sidebar styles - Dark Botanical style */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 320px;
+      height: 100vh;
+      background: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
+      overflow-y: auto;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      box-shadow: 4px 0 32px rgba(0, 0, 0, 0.5);
+      border-right: 1px solid rgba(212, 165, 116, 0.1);
+    }
+
+    /* Sidebar decorative abstract shapes */
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 100px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(212, 165, 116, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(40px);
+      pointer-events: none;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+      background: rgba(212, 165, 116, 0.05);
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(212, 165, 116, 0.3);
+      border-radius: 4px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: rgba(212, 165, 116, 0.5);
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(-320px);
+    }
+
+    .sidebar-header {
+      padding: 40px 28px 28px;
+      border-bottom: 1px solid rgba(212, 165, 116, 0.15);
+      position: sticky;
+      top: 0;
+      background: linear-gradient(180deg, #0f0f0f 0%, rgba(26, 26, 26, 0.98) 100%);
+      z-index: 10;
+      backdrop-filter: blur(12px);
+    }
+
+    .sidebar-title {
+      font-family: 'Cormorant', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-warm);
+      margin: 0 0 8px 0;
+      letter-spacing: 0.3px;
+      line-height: 1.3;
+    }
+
+    .sidebar-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin: 0;
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 0.3px;
+    }
+
+    .sidebar-nav {
+      padding: 24px 0 40px;
+    }
+
+    .nav-item {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 11px 28px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-left: 2px solid transparent;
+      position: relative;
+      font-weight: 300;
+      letter-spacing: 0.2px;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--accent-warm) 0%, var(--accent-gold) 100%);
+      transform: scaleY(0);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: center;
+    }
+
+    .nav-link:hover {
+      background: rgba(212, 165, 116, 0.08);
+      color: var(--accent-warm);
+      text-decoration: none;
+      padding-left: 32px;
+    }
+
+    .nav-link.active {
+      color: var(--accent-warm);
+      background: rgba(212, 165, 116, 0.12);
+      font-weight: 400;
+      padding-left: 32px;
+    }
+
+    .nav-link.active::after {
+      transform: scaleY(1);
+    }
+
+    .nav-link.level-2 {
+      padding-left: 44px;
+      font-size: 0.85rem;
+      color: rgba(154, 149, 144, 0.8);
+      font-weight: 300;
+    }
+
+    .nav-link.level-2:hover,
+    .nav-link.level-2.active {
+      padding-left: 48px;
+    }
+
+    .nav-link.level-2::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      background: var(--accent-gold);
+      border-radius: 50%;
+      margin-right: 12px;
+      opacity: 0.5;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link.level-2:hover::before {
+      opacity: 1;
+      transform: scale(1.3);
+    }
+
+    .nav-link.level-2.active::before {
+      opacity: 1;
+      background: var(--accent-warm);
+      box-shadow: 0 0 8px rgba(212, 165, 116, 0.5);
+    }
+
+    .nav-link.level-3 {
+      padding-left: 60px;
+      font-size: 0.8rem;
+      color: rgba(154, 149, 144, 0.6);
+    }
+
+    .nav-link.level-3:hover,
+    .nav-link.level-3.active {
+      padding-left: 64px;
+    }
+
+    /* Toggle button - Dark Botanical style */
+    .toggle-btn {
+      position: fixed;
+      left: 320px;
+      top: 28px;
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent-warm) 0%, var(--accent-gold) 100%);
+      border: 1px solid rgba(212, 165, 116, 0.3);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1001;
+      box-shadow: 0 4px 20px rgba(212, 165, 116, 0.3), 0 0 0 0 rgba(212, 165, 116, 0.4);
+    }
+
+    .toggle-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 24px rgba(212, 165, 116, 0.4), 0 0 20px rgba(212, 165, 116, 0.2);
+    }
+
+    .toggle-btn:active {
+      transform: scale(0.96);
+    }
+
+    .toggle-btn.collapsed {
+      left: 28px;
+      background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(15, 15, 15, 0.95) 100%);
+      border-color: var(--accent-warm);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 165, 116, 0.3);
+    }
+
+    .toggle-btn.collapsed:hover {
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 165, 116, 0.3);
+    }
+
+    .toggle-icon {
+      width: 22px;
+      height: 16px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .toggle-icon span {
+      display: block;
+      height: 2px;
+      background: #1a1a1a;
+      border-radius: 2px;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Expanded state: show X icon */
+    .toggle-icon span:nth-child(1) {
+      width: 100%;
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .toggle-icon span:nth-child(2) {
+      width: 80%;
+      opacity: 0;
+      transform: translateX(10px);
+    }
+
+    .toggle-icon span:nth-child(3) {
+      width: 100%;
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* Collapsed state: show hamburger menu icon */
+    .toggle-btn.collapsed .toggle-icon span {
+      background: var(--accent-warm);
+    }
+
+    .toggle-btn.collapsed .toggle-icon span:nth-child(1) {
+      transform: translateY(0) rotate(0);
+      width: 100%;
+    }
+
+    .toggle-btn.collapsed .toggle-icon span:nth-child(2) {
+      opacity: 1;
+      transform: translateX(0);
+      width: 80%;
+    }
+
+    .toggle-btn.collapsed .toggle-icon span:nth-child(3) {
+      transform: translateY(0) rotate(0);
+      width: 100%;
+    }
+
+    /* Main content area */
+    .main-content {
+      flex: 1;
+      margin-left: 320px;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: clamp(32px, 4vw, 48px) clamp(24px, 3vw, 40px);
+    }
+
+    .main-content.expanded {
+      margin-left: 0;
+    }
+
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: clamp(48px, 6vw, 80px) clamp(32px, 4vw, 64px);
+      background: var(--bg-card);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative abstract shapes */
+    .page::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(212, 165, 116, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .page::after {
+      content: '';
+      position: absolute;
+      bottom: -150px;
+      left: -150px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(232, 180, 184, 0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Cormorant', serif;
+      color: var(--text-primary);
+      margin-top: 2em;
+      margin-bottom: 0.8em;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-top: 0;
+      font-weight: 400;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      border-bottom: 1px solid rgba(232, 228, 223, 0.15);
+      padding-bottom: 0.5em;
+      margin-top: 2.5em;
+      color: var(--accent-warm);
+    }
+
+    h2::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-warm) 0%, transparent 100%);
+    }
+
+    h3 {
+      font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    p {
+      margin: 1em 0;
+      color: var(--text-secondary);
+      font-size: clamp(0.95rem, 1.8vw, 1.05rem);
+      position: relative;
+      z-index: 1;
+    }
+
+    header p {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: var(--text-primary);
+      font-weight: 400;
+      line-height: 1.7;
+    }
+
+    ul {
+      margin: 1em 0 1.5em 0;
+      padding-left: 1.8em;
+      position: relative;
+      z-index: 1;
+    }
+
+    li {
+      margin: 0.6em 0;
+      color: var(--text-secondary);
+      font-size: clamp(0.9rem, 1.7vw, 1rem);
+      line-height: 1.7;
+    }
+
+    li::marker {
+      color: var(--accent-warm);
+    }
+
+    .grid {
+      display: grid;
+      gap: 24px;
+    }
+
+    .note {
+      padding: 20px 24px;
+      background: rgba(74, 158, 255, 0.08);
+      border-left: 3px solid var(--accent-blue);
+      color: var(--text-primary);
+      margin: 2em 0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+
+    .note p {
+      margin: 0;
+      color: var(--text-primary);
+    }
+
+    .image-block {
+      text-align: center;
+      margin: 3em 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .image-block img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(232, 228, 223, 0.1);
+    }
+
+    .caption {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 1em;
+      font-style: italic;
+    }
+
+    .section-tag {
+      display: inline-block;
+      background: rgba(212, 165, 116, 0.15);
+      color: var(--accent-warm);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      margin-bottom: 1.2em;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid rgba(212, 165, 116, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    a {
+      color: var(--accent-blue);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      border-bottom: 1px solid transparent;
+    }
+
+    a:hover {
+      color: var(--accent-warm);
+      border-bottom-color: var(--accent-warm);
+      text-decoration: none;
+    }
+
+    footer.note {
+      margin-top: 4em;
+      background: rgba(232, 180, 184, 0.08);
+      border-left-color: var(--accent-pink);
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 300px;
+      }
+
+      .sidebar.collapsed {
+        transform: translateX(-300px);
+      }
+
+      .toggle-btn {
+        left: 300px;
+      }
+
+      .toggle-btn.collapsed {
+        left: 20px;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 24px 20px;
+      }
+
+      .page {
+        padding: 32px 20px;
+        border-radius: 12px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+      }
+
+      .sidebar.collapsed {
+        transform: translateX(-100%);
+      }
+
+      .toggle-btn {
+        left: auto;
+        right: 20px;
+        width: 44px;
+        height: 44px;
+      }
+
+      .toggle-btn.collapsed {
+        left: auto;
+        right: 20px;
+      }
+
+      .main-content {
+        padding: 20px 16px;
+      }
+
+      .page {
+        padding: 24px 16px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(212, 165, 116, 0.3);
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(212, 165, 116, 0.5);
+    }
+
+    /* Text selection styling */
+    ::selection {
+      background: rgba(212, 165, 116, 0.3);
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+
+<body>
+ 
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2 class="sidebar-title">Table of Contents</h2>
+      <p class="sidebar-subtitle">CMS-VFM Documentation</p>
+    </div>
+    <nav class="sidebar-nav">
+      <ul class="nav-item">
+        <li><a href="#overview" class="nav-link">Overview</a></li>
+        <li><a href="#character-design" class="nav-link">1. Character Design Sheet</a></li>
+        <li><a href="#character-profile" class="nav-link level-2">1.1 Character Profile</a></li>
+        <li><a href="#appearance-specs" class="nav-link level-2">1.2 Appearance Specifications</a></li>
+        <li><a href="#wardrobe-system" class="nav-link level-2">1.3 Wardrobe System</a></li>
+        <li><a href="#makeup-hair" class="nav-link level-2">1.4 Make-up & Hair Bible</a></li>
+        <li><a href="#motion-behavior" class="nav-link level-2">1.5 Motion & Behavior Sheet</a></li>
+        <li><a href="#character-evolution" class="nav-link level-2">1.6 Character Evolution</a></li>
+        <li><a href="#environment-design" class="nav-link">2. Environment Design Sheet</a></li>
+        <li><a href="#scene-tone" class="nav-link level-2">2.1 Scene Tone & Mood</a></li>
+        <li><a href="#spatial-blueprint" class="nav-link level-2">2.2 Spatial Blueprint</a></li>
+        <li><a href="#environment-levels" class="nav-link level-2">2.3 Environment Levels</a></li>
+        <li><a href="#scene-transition" class="nav-link level-2">2.4 Scene Transition Rules</a></li>
+        <li><a href="#props-belongings" class="nav-link">3. Props & Belongings Sheet</a></li>
+        <li><a href="#hero-props" class="nav-link level-2">3.1 Hero Props</a></li>
+        <li><a href="#functional-props" class="nav-link level-2">3.2 Functional Props</a></li>
+        <li><a href="#prop-evolution" class="nav-link level-2">3.3 Prop Evolution</a></li>
+        <li><a href="#visual-coherence" class="nav-link">4. Visual Coherence Rules</a></li>
+        <li><a href="#shot-consistency" class="nav-link level-2">4.1 Shot-to-Shot Consistency</a></li>
+        <li><a href="#cross-scene" class="nav-link level-2">4.2 Cross-Scene Continuity</a></li>
+        <li><a href="#action-continuity" class="nav-link level-2">4.3 Action Continuity</a></li>
+        <li><a href="#proportion-consistency" class="nav-link level-2">4.4 Proportion Consistency</a></li>
+        <li><a href="#style-coherence" class="nav-link level-2">4.5 Style Coherence</a></li>
+        <li><a href="#asset-folder" class="nav-link">5. Asset Folder Structure</a></li>
+        <li><a href="#image-assets" class="nav-link level-2">5.1 Image Assets</a></li>
+        <li><a href="#video-assets" class="nav-link level-2">5.2 Video Assets</a></li>
+        <li><a href="#audio-assets" class="nav-link level-2">5.3 Audio Assets</a></li>
+        <li><a href="#examples-usage" class="nav-link">6. Examples & Usage Instructions</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  
+  <button class="toggle-btn" id="toggleBtn" aria-label="Toggle Sidebar">
+    <span class="toggle-icon">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+  </button>
+
+ 
+  <div class="main-content" id="mainContent">
+    <article class="page">
+    <header>
+      <h1>CMS-VFM (Visual Standardization Management "Example Based on readme.md Content")</h1>
+      <p>CMS-VFM is an engineering specification for video generation, ensuring consistency of characters, props, and
+        visuals in long narratives, multiple shots, and cross-scene environments by pre-defining character, script, and
+        scene details.</p>
+      <div class="note">The content of this page is generated based on existing Markdown specifications and structured
+        diagrams, recommended as the HTML version of project setting documents.</div>
+    </header>
+
+    <section id="overview">
+      <span class="section-tag">Overview</span>
+      <p>By setting character appearance, scene standards, prop specifications, and visual coherence rules, the goal of
+        CMS-VFM is to maintain unity in character proportions, lighting styles, wardrobe states, and action continuity
+        in visual generation projects, thereby reducing rework and visual drift.</p>
+    </section>
+
+    <section class="image-block">
+      <img src="Asset Files/images/2026-05-13 21.44.08.png" alt="CMS-VFM Structured Mind Map" />
+      <div class="caption">Structured map of CMS-VFM architecture and visual coherence rules.</div>
+    </section>
+
+    <section id="character-design">
+      <h2>1. Character Design Sheet</h2>
+      <h3 id="character-profile">1.1 Character Profile</h3>
+      <ul>
+        <li>Name: Character Name</li>
+        <li>Age: Character Age Setting</li>
+        <li>Height: Character Height Data</li>
+        <li>Body Type: Body Feature Description</li>
+        <li>Race: Race Setting</li>
+        <li>Occupation: Occupational Background</li>
+        <li>Personality: Personality Feature Description</li>
+      </ul>
+
+      <h3 id="appearance-specs">1.2 Appearance Specifications</h3>
+      <ul>
+        <li>Facial Proportions: Face Feature Proportion Standards</li>
+        <li>Skin Tone: Skin Tone Settings and Change Rules</li>
+        <li>Hairstyle: Hairstyle Design Specifications</li>
+        <li>Body Shape: Body Morphology Standards</li>
+        <li>Signature Features: Identifiable Feature Definitions</li>
+      </ul>
+
+      <h3 id="wardrobe-system">1.3 Wardrobe System</h3>
+      <ul>
+        <li>Daily Wear: Everyday Clothing</li>
+        <li>Combat Gear: Battle Scene Clothing</li>
+        <li>Formal Wear: Official Occasion Clothing</li>
+        <li>Seasonal Changes: Seasonal Clothing Variations</li>
+        <li>Fabric Texture: Clothing Material Performance Specifications</li>
+        <li>Color Scheme: Clothing Color Scheme</li>
+        <li>Aging/Wear Rules: Clothing Usage Wear Rules</li>
+      </ul>
+
+      <h3 id="makeup-hair">1.4 Make-up & Hair Bible</h3>
+      <ul>
+        <li>Makeup Levels: Base Makeup, Emotional Makeup, Special Makeup</li>
+        <li>Hairstyle Change Rules: Hairstyle changes under action states, Hairstyle changes in windy environments</li>
+      </ul>
+
+      <h3 id="motion-behavior">1.5 Motion & Behavior Sheet</h3>
+      <ul>
+        <li>Character Pose Library: Standing, Walking, Emotional Poses</li>
+      </ul>
+
+      <h3 id="character-evolution">1.6 Character Evolution</h3>
+      <ul>
+        <li>Age Variation: Appearance changes across different age groups</li>
+        <li>Scar Accumulation: Representation rules for injury marks</li>
+        <li>Wardrobe Aging: Rules for clothing aging over time</li>
+        <li>Key Plot Node Visual Changes: Appearance change specifications for significant plot points</li>
+      </ul>
+    </section>
+
+    <section id="environment-design">
+      <h2>2. Environment Design Sheet</h2>
+      <h3 id="scene-tone">2.1 Scene Tone & Mood</h3>
+      <ul>
+        <li>Color: Main scene colors and color schemes</li>
+        <li>Lighting: Lighting settings and light/shadow effects</li>
+        <li>Weather: Weather change rules</li>
+        <li>Period Background: Historical period setting</li>
+      </ul>
+
+      <h3 id="spatial-blueprint">2.2 Spatial Blueprint</h3>
+      <ul>
+        <li>Main Scene Floor Plan: Scene layout design</li>
+        <li>Key Areas: Significant area identifications</li>
+        <li>Interactable Objects: Interactive object definitions</li>
+      </ul>
+
+      <h3 id="environment-levels">2.3 Environment Levels</h3>
+      <ul>
+        <li>Foreground: Close-up visual density and detail levels</li>
+        <li>Midground: Middle-distance visual density and detail levels</li>
+        <li>Background: Long-distance visual density and detail levels</li>
+      </ul>
+
+      <h3 id="scene-transition">2.4 Scene Transition Rules</h3>
+      <ul>
+        <li>Time Variation: Day/Night transition rules</li>
+        <li>Seasonal Variation: Seasonal alternation rules</li>
+        <li>Destruction/Repair Status: Scene damage and restoration rules</li>
+        <li>Multi-Shot Lighting Consistency: Uniform lighting specifications across different shots</li>
+      </ul>
+    </section>
+
+    <section id="props-belongings">
+      <h2>3. Props & Belongings Sheet</h2>
+      <h3 id="hero-props">3.1 Hero Props</h3>
+      <ul>
+        <li>Key Item Dimensions: Essential prop size specifications</li>
+        <li>Material Representation: Prop material definitions</li>
+        <li>Wear Logic: Prop usage wear rules</li>
+      </ul>
+
+      <h3 id="functional-props">3.2 Functional Props</h3>
+      <ul>
+        <li>Usage: Prop operation methods</li>
+        <li>Carrying Method: Prop carrying and placement methods</li>
+      </ul>
+
+      <h3 id="prop-evolution">3.3 Prop Evolution</h3>
+      <ul>
+        <li>Damage Rules: Prop damage representation</li>
+        <li>Upgrade Rules: Prop upgrade changes</li>
+        <li>Replacement Rules: Prop replacement mechanism</li>
+      </ul>
+    </section>
+
+    <section id="visual-coherence">
+      <h2>4. Visual Coherence Rules</h2>
+      <h3 id="shot-consistency">4.1 Shot-to-Shot Consistency</h3>
+      <ul>
+        <li>Uniform Character Scale: Consistent character size and proportions across different shots</li>
+        <li>Consistent Lighting Direction: Light source direction remains uniform across different shots</li>
+        <li>Consistent Wardrobe State: Wardrobe status remains the same across different shots</li>
+      </ul>
+
+      <h3 id="cross-scene">4.2 Cross-Scene Continuity</h3>
+      <ul>
+        <li>Character State Continuity: Cross-scene continuation of scars, makeup, and wardrobe states</li>
+      </ul>
+
+      <h3 id="action-continuity">4.3 Action Continuity</h3>
+      <p>Ensure character actions are continuous between shots, avoiding chopped or disjointed performances.</p>
+
+      <h3 id="proportion-consistency">4.4 Proportion Consistency</h3>
+      <ul>
+        <li>Uniform Head-to-Body Ratio: Standard ratio of character head to body</li>
+        <li>Uniform Limb Proportions: Limb length proportion specifications</li>
+        <li>Uniform Prop Size: Consistent prop dimensions across different scenes</li>
+        <li>Phase Proportion Chart: Proportion change table during character growth</li>
+      </ul>
+
+      <h3 id="style-coherence">4.5 Style Coherence</h3>
+      <ul>
+        <li>Unified Color Language (Color Script): Project-wide color scheme</li>
+        <li>Unified Lighting Logic (Lighting Bible): Light and shadow performance specifications</li>
+        <li>Unified Material Representation (Material Guide): Material rendering standards</li>
+      </ul>
+    </section>
+
+    <section id="asset-folder">
+      <h2>5. Asset Folder Structure</h2>
+      <h3 id="image-assets">5.1 Image Assets</h3>
+      <ul>
+        <li>Character Designs: Character concepts, orthographic views, etc.</li>
+        <li>Environment Designs: Scene concepts, layout diagrams, etc.</li>
+        <li>Prop Designs: Prop designs, detail drawings, etc.</li>
+        <li>Reference Images: Style references, material references, etc.</li>
+      </ul>
+
+      <h3 id="video-assets">5.2 Video Assets</h3>
+      <ul>
+        <li>Animation Tests: Action test videos</li>
+        <li>Effect Previews: Visual effects preview videos</li>
+        <li>Reference Videos: Style reference videos</li>
+      </ul>
+
+      <h3 id="audio-assets">5.3 Audio Assets</h3>
+      <ul>
+        <li>Character Voiceovers: Character voice files</li>
+        <li>Ambient Sound Effects: Scene environment sound effects</li>
+        <li>SFX: Special effect sounds</li>
+        <li>BGM: Background music files</li>
+      </ul>
+    </section>
+
+    <section id="examples-usage">
+      <h2>6. Examples & Usage Instructions</h2>
+      <p>It is recommended to use HTML documents as the primary setting format, supporting text, images, videos, and
+        audio content for easy real-time reading and modification by models.</p>
+      <p>Usage Workflow:</p>
+      <ul>
+        <li>Establish a complete CMS-VFM system</li>
+        <li>Develop detailed design specifications</li>
+        <li>Train team members to use specification documents</li>
+      </ul>
+      <p>In the actual process, you should:</p>
+      <ul>
+        <li>Read Character Design Sheets and HTML Document Skills every time to avoid shot setting drift</li>
+        <li>Update Environment Design Sheets and character evolution/changes in a timely manner</li>
+        <li>Write documents using HTML markup language, inserting reference materials to ensure models understand the
+          script document content at once</li>
+      </ul>
+    </section>
+
+    <footer class="note">
+      <p>This project is based on <a href="https://github.com/zarazhangrui/frontend-slides"
+          target="_blank">frontend-slides</a>, implementing HTML Document Skills referencing the MIT License.</p>
+    </footer>
+    </article>
+  </div>
+
+  <script>
+    // Sidebar toggle functionality
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const mainContent = document.getElementById('mainContent');
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      toggleBtn.classList.toggle('collapsed');
+      mainContent.classList.toggle('expanded');
+    });
+
+    // Navigation link click handling
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Remove all active states
+        navLinks.forEach(l => l.classList.remove('active'));
+        
+        // Add current active state
+        link.classList.add('active');
+        
+        // Smooth scroll to target position
+        const targetId = link.getAttribute('href').substring(1);
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+          const offsetTop = targetElement.offsetTop - 20;
+          window.scrollTo({
+            top: offsetTop,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+   
+    const sections = document.querySelectorAll('section[id], h3[id]');
+    
+    window.addEventListener('scroll', () => {
+      let current = '';
+      
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        
+        if (window.pageYOffset >= sectionTop - 100) {
+          current = section.getAttribute('id');
+        }
+      });
+      
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+          link.classList.add('active');
+        }
+      });
+    });
+
+  
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '[') {
+        sidebar.classList.toggle('collapsed');
+        toggleBtn.classList.toggle('collapsed');
+        mainContent.classList.toggle('expanded');
+      }
+    });
+  </script>
+</body>
+
+</html>
