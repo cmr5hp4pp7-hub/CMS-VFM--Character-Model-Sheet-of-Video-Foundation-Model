@@ -10,6 +10,13 @@ THANKS!
 
 ![CMS-VFM Architecture Diagram](Settings&Asset%20Files/Asset%20Files/images/2026-05-13%2021.44.08.png)
 
+<div align="center">
+  <img src="Settings&Asset%20Files/Asset%20Files/images/cut2026-05-15%204.47.34.png" alt="Cut Image 1" width="45%">
+  <img src="Settings&Asset%20Files/Asset%20Files/images/cut2026-05-15%204.47.49.png" alt="Cut Image 2" width="45%">
+</div>
+
+## Intuitive and flexible, online editing, large models that can understand directly, collaborative sharing, and unified creative standards for multi-person teams and agents
+
 ## System Architecture Overview
 
 ### 1. Character Design Sheet
@@ -162,8 +169,14 @@ Based on frontend-slides by @zarazhangrui (MIT License)
 - Add corresponding files to the chat box to implement each module's functionality (such as animation-patterns, STYLE_PRESETS, etc.)
 - Constantly update scene settings for each shot and timely update character growth changes; submit only partial settings to the model when necessary
 - Write documents using HTML markup language, insert reference images, videos, and audio into HTML to build script documents that the model can understand at once, reducing rework and complex operations. Meanwhile, utilize the model's coding capabilities to help you edit HTML documents
+- Print and export PDF directly from the browser
 - Use remind.md document to summarize experience and add reminders, allowing the model to use the most effective path and reduce errors
+ 
+ ## One more thing
 
+ - It is recommended to use it heavily when generating lens reference images, which is stable and the consumption of tokens is controllable.
+Use this framework to generate video scripts and reference images, preferably video or lens scripts also in HTML, and then choose whether to let the model reference the framework before generating the video.
+If you find it difficult to operate with HTML, word and excel documents are also recommended, you can use the office office suite to modify and update in real time
 
 
 ---

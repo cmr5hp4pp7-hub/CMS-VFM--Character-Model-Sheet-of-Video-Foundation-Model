@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Character Design Sheets - CMS-VFM</title>
+<style>
+:root {
+  --primary: #2c3e50;
+  --accent: #e74c3c;
+  --bg: #f8f9fa;
+  --card-bg: #ffffff;
+  --text: #333333;
+  --text-light: #666666;
+  --border: #dee2e6;
+  --success: #27ae60;
+  --warning: #f39c12;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 2rem;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+h1 { font-size: 2rem; margin-bottom: 0.5rem; color: var(--primary); }
+h2 {
+  font-size: 1.3rem; margin-top: 2rem; margin-bottom: 1rem;
+  padding-bottom: 0.5rem; border-bottom: 2px solid var(--accent);
+  color: var(--primary); cursor: pointer; user-select: none;
+}
+h2:hover { color: var(--accent); }
+.card { background: var(--card-bg); border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.field { margin-bottom: 0.8rem; }
+.field label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.2rem; }
+.field [contenteditable] { min-height: 1.5em; padding: 0.3rem 0.5rem; border: 1px dashed transparent; border-radius: 4px; transition: border-color 0.2s, background 0.2s; }
+.field [contenteditable]:hover { border-color: var(--border); }
+.field [contenteditable]:focus { border-color: var(--accent); outline: none; background: #fff5f5; }
+.tag { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; margin: 0.2rem; }
+.tag-blue { background: #eef; color: #2980b9; }
+.tag-green { background: #efe; color: #27ae60; }
+
+/* Media Zone */
+.media-zone { position: relative; width: 100%; min-height: 160px; border: 2px dashed var(--border); border-radius: 8px; background: linear-gradient(135deg, #fafafa, #f0f0f0); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; transition: border-color 0.2s, background 0.2s; margin-bottom: 0.6rem; }
+.media-zone:hover { border-color: var(--accent); background: #fff5f5; }
+.media-zone.drag-over { border-color: var(--success); background: #f0fff4; }
+.media-zone .empty-label { text-align: center; color: #999; padding: 1.5rem 1rem; pointer-events: none; }
+.media-zone .empty-label .icon { font-size: 1.6rem; display: block; margin-bottom: 0.3rem; }
+.media-zone .empty-label .hint { font-size: 0.7rem; margin-top: 0.2rem; opacity: 0.7; }
+.media-zone img, .media-zone video { width: 100%; height: 100%; object-fit: contain; display: block; }
+.media-zone .replace-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: #fff; text-align: center; padding: 0.3rem; font-size: 0.75rem; transform: translateY(100%); transition: transform 0.2s; }
+.media-zone:hover .replace-overlay { transform: translateY(0); }
+.media-zone .remove-btn { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; border: none; background: rgba(0,0,0,0.5); color: #fff; cursor: pointer; font-size: 0.8rem; display: none; align-items: center; justify-content: center; z-index: 2; line-height: 1; }
+.media-zone:hover .remove-btn { display: flex; }
+.media-zone .remove-btn:hover { background: var(--accent); }
+.media-zone.media-portrait { aspect-ratio: 3/4; }
+.media-zone.media-square { aspect-ratio: 1/1; }
+.media-zone.media-landscape { aspect-ratio: 16/9; }
+
+/* Dashboard */
+.dashboard { background: var(--card-bg); border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.dashboard-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+.dashboard-header .project-name { font-weight: 700; font-size: 1rem; color: var(--primary); min-width: 120px; }
+.dashboard-header .project-name[contenteditable]:hover { border-color: var(--border); }
+.dashboard-header .project-name[contenteditable]:focus { border-color: var(--accent); outline: none; background: #fff5f5; }
+.item-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.item-card { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.7rem; border-radius: 8px; border: 2px solid var(--border); background: var(--bg); cursor: pointer; transition: all 0.2s; font-size: 0.85rem; }
+.item-card:hover { border-color: var(--accent); }
+.item-card.active { border-color: var(--accent); background: #fff5f5; font-weight: 600; }
+.item-card .item-name { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-card .item-actions { display: flex; gap: 2px; margin-left: 4px; }
+.item-card .item-actions button { background: none; border: none; cursor: pointer; font-size: 0.75rem; padding: 2px 4px; border-radius: 4px; color: var(--text-light); transition: color 0.2s; }
+.item-card .item-actions button:hover { color: var(--accent); }
+.item-card .item-actions .del-btn:hover { color: #c0392b; }
+.item-add-btn { display: flex; align-items: center; gap: 4px; padding: 0.35rem 0.7rem; border-radius: 8px; border: 2px dashed var(--border); background: transparent; cursor: pointer; font-size: 0.85rem; color: var(--text-light); transition: all 0.2s; }
+.item-add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Toolbar */
+.toolbar { position: sticky; top: 0; background: var(--bg); padding: 0.6rem 0; z-index: 100; display: flex; gap: 0.4rem; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+.btn { padding: 0.35rem 0.9rem; border: 1px solid var(--border); border-radius: 6px; background: var(--card-bg); cursor: pointer; font-size: 0.8rem; transition: all 0.2s; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { opacity: 0.9; color: #fff; }
+.toast { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #fff; padding: 0.7rem 1.3rem; border-radius: 8px; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+.toast.show { opacity: 1; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+.modal-overlay.active { display: flex; }
+.modal { background: #fff; border-radius: 12px; padding: 2rem; width: 90%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.modal h3 { margin-bottom: 1rem; font-size: 1.1rem; }
+.modal .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; flex-wrap: wrap; }
+.modal .modal-actions .btn { flex: 1; text-align: center; padding: 0.7rem 1rem; }
+.modal .url-input-group { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.modal .url-input-group input { flex: 1; padding: 0.5rem 0.8rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; }
+.modal .url-input-group input:focus { border-color: var(--accent); outline: none; }
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; cursor: zoom-out; }
+.lightbox.active { display: flex; }
+.lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 4px; }
+body.modal-open { overflow: hidden; }
+@media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } }
+</style>
+</head>
+<body>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h3 id="modalTitle">📁 Import Media</h3>
+    <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:1rem;" id="modalHint">Select a file or paste a URL</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="triggerFilePick()">📁 Choose File</button>
+      <button class="btn" onclick="showUrlInput()">🔗 From URL</button>
+    </div>
+    <div class="url-input-group" id="urlInputGroup" style="display:none;">
+      <input type="text" id="urlInput" placeholder="Paste image/video/audio URL here..." onkeydown="if(event.key==='Enter')importFromUrl()">
+      <button class="btn btn-primary" onclick="importFromUrl()">Import</button>
+    </div>
+    <p style="font-size:0.75rem;color:var(--text-light);margin-top:1rem;" id="modalFormats"></p>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="Full size preview">
+</div>
+
+<div class="container">
+
+<!-- ─── Toolbar ─── -->
+<div class="toolbar">
+  <button class="btn" onclick="saveAll()">💾 Save</button>
+  <button class="btn" onclick="exportHTML()">📤 Export</button>
+  <button class="btn" onclick="resetAll()">🔄 Reset</button>
+  <span style="flex:1"></span>
+  <span style="font-size:0.75rem;color:var(--text-light)">✏️ Click text to edit · Characters: <span id="charCount">1</span></span>
+</div>
+
+<!-- ─── Dashboard: Multi-Character Manager ─── -->
+<div class="dashboard" id="dashboard">
+  <div class="dashboard-header">
+    <span>📋</span>
+    <span class="project-name" contenteditable="true" id="projectName">My Project</span>
+    <span style="font-size:0.8rem;color:var(--text-light);">— Characters</span>
+    <span style="flex:1"></span>
+    <button class="btn" onclick="addNewItem()" style="font-size:0.8rem;">➕ Add Character</button>
+  </div>
+  <div class="item-bar" id="itemBar"></div>
+</div>
+
+<!-- ─── Section container (renders active character here) ─── -->
+<div id="sheetContainer">
+<h1>📋 Character Design Sheet · <span contenteditable="true" id="char-name" style="color:var(--accent);">[Character Name]</span></h1>
+<p style="color:var(--text-light);margin-bottom:2rem;">
+  Project: <span contenteditable="true" id="char-project">[Project Name]</span> ·
+  Version: <span contenteditable="true" id="char-version">1.0</span> ·
+  Updated: <span id="char-date">2026-05-15</span>
+</p>
+
+<!-- 1.1 Character Profile -->
+<h2 onclick="toggleSection(this)">▸ 1.1 Character Profile</h2>
+<div class="card">
+  <div class="grid-2">
+    <div class="field"><label>Name</label><div contenteditable="true">[Character Name]</div></div>
+    <div class="field"><label>Age</label><div contenteditable="true">[Age Setting]</div></div>
+    <div class="field"><label>Height</label><div contenteditable="true">[Height Data]</div></div>
+    <div class="field"><label>Body Type</label><div contenteditable="true">[Body Type Description]</div></div>
+    <div class="field"><label>Race</label><div contenteditable="true">[Race Setting]</div></div>
+    <div class="field"><label>Occupation</label><div contenteditable="true">[Occupation Background]</div></div>
+    <div class="field" style="grid-column:1/-1;"><label>Personality</label><div contenteditable="true">[Personality Trait Description]</div></div>
+  </div>
+</div>
+
+<!-- 1.2 Appearance Specifications -->
+<h2 onclick="toggleSection(this)">▸ 1.2 Appearance Specifications</h2>
+<div class="card">
+  <div class="grid-2">
+    <div>
+      <div class="media-zone media-portrait" data-media-type="image" data-prefix="char_front" onclick="openImport(this)"><div class="empty-label"><span class="icon">📷</span>Click to Add Portrait<span class="hint">jpg, png, webp</span></div></div>
+      <div class="field"><label>Facial Proportions</label><div contenteditable="true">[Facial feature proportion standards]</div></div>
+    </div>
+    <div>
+      <div class="media-zone media-portrait" data-media-type="image" data-prefix="char_side" onclick="openImport(this)"><div class="empty-label"><span class="icon">📷</span>Click to Add Side Profile<span class="hint">jpg, png, webp</span></div></div>
+      <div class="field"><label>Skin Tone</label><div contenteditable="true">[Skin tone settings and variation rules]</div></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="field"><label>Hairstyle</label><div contenteditable="true">[Hairstyle design specifications]</div></div>
+    <div class="field"><label>Body Type Standard</label><div contenteditable="true">[Body type standards]</div></div>
+    <div class="field" style="grid-column:1/-1;"><label>Signature Features</label><div contenteditable="true">[Identifying characteristic definitions]</div></div>
+  </div>
+</div>
+
+<!-- 1.3 Wardrobe System -->
+<h2 onclick="toggleSection(this)">▸ 1.3 Wardrobe System</h2>
+<div class="card">
+  <div class="grid-3">
+    <div>
+      <div class="media-zone media-square" data-media-type="image" data-prefix="wardrobe_casual" onclick="openImport(this)"><div class="empty-label"><span class="icon">👕</span>Casual<span class="hint">jpg, png</span></div></div>
+      <div class="field"><label>Casual Wear</label><div contenteditable="true">[Daily clothing description]</div></div>
+      <div style="margin-top:0.3rem;"><span class="tag tag-blue">Primary: <span contenteditable="true">#</span></span><span class="tag tag-green">Accent: <span contenteditable="true">#</span></span></div>
+    </div>
+    <div>
+      <div class="media-zone media-square" data-media-type="image" data-prefix="wardrobe_formal" onclick="openImport(this)"><div class="empty-label"><span class="icon">👔</span>Formal<span class="hint">jpg, png</span></div></div>
+      <div class="field"><label>Formal Wear</label><div contenteditable="true">[Formal occasion attire]</div></div>
+      <div style="margin-top:0.3rem;"><span class="tag tag-blue">Primary: <span contenteditable="true">#</span></span><span class="tag tag-green">Accent: <span contenteditable="true">#</span></span></div>
+    </div>
+    <div>
+      <div class="field"><label>Seasonal Variations</label><div contenteditable="true">[Seasonal clothing changes]</div></div>
+    </div>
+  </div>
+  <div class="field"><label>Color Scheme</label><div contenteditable="true">[Clothing color palette]</div></div>
+</div>
+
+<!-- 1.4 Make-up & Hair Bible -->
+<h2 onclick="toggleSection(this)">▸ 1.4 Make-up & Hair Bible</h2>
+<div class="card">
+  <div class="grid-2">
+    <div class="field"><label>Base Make-up (Daily)</label><div contenteditable="true">[Daily make-up description]</div></div>
+    <div class="field"><label>Special Make-up (Scene)</label><div contenteditable="true">[Special scene make-up description]</div></div>
+  </div>
+</div>
+
+<!-- 1.5 Motion & Behavior Sheet -->
+<h2 onclick="toggleSection(this)">▸ 1.5 Motion & Behavior Sheet</h2>
+<div class="card">
+  <div class="grid-3">
+    <div>
+      <div class="media-zone media-square" data-media-type="image" data-prefix="pose_stand" onclick="openImport(this)"><div class="empty-label"><span class="icon">🧍</span>Standing Pose<span class="hint">Click</span></div></div>
+      <div class="media-zone media-landscape" data-media-type="video" data-prefix="anim_stand" onclick="openImport(this)"><div class="empty-label"><span class="icon">🎬</span>Standing Animation<span class="hint">Click</span></div></div>
+      <div class="field"><label>Standing Pose</label><div contenteditable="true">[Standing posture specifications]</div></div>
+    </div>
+    <div>
+      <div class="media-zone media-square" data-media-type="image" data-prefix="pose_walk" onclick="openImport(this)"><div class="empty-label"><span class="icon">🚶</span>Walking Pose<span class="hint">Click</span></div></div>
+      <div class="media-zone media-landscape" data-media-type="video" data-prefix="anim_walk" onclick="openImport(this)"><div class="empty-label"><span class="icon">🎬</span>Walking Animation<span class="hint">Click</span></div></div>
+      <div class="field"><label>Walking Pose</label><div contenteditable="true">[Walking posture specifications]</div></div>
+    </div>
+    <div>
+      <div class="media-zone media-square" data-media-type="image" data-prefix="pose_emotion" onclick="openImport(this)"><div class="empty-label"><span class="icon">😊</span>Emotional Pose<span class="hint">Click</span></div></div>
+      <div class="media-zone media-landscape" data-media-type="video" data-prefix="anim_emotion" onclick="openImport(this)"><div class="empty-label"><span class="icon">🎬</span>Emotion Animation<span class="hint">Click</span></div></div>
+      <div class="field"><label>Emotional Expressions</label><div contenteditable="true">[Emotional expression posture specs]</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 1.6 Character Evolution -->
+<h2 onclick="toggleSection(this)">▸ 1.6 Character Evolution</h2>
+<div class="card">
+  <div class="grid-2">
+    <div class="field"><label>Age Changes</label><div contenteditable="true">[Appearance changes across different age stages]</div></div>
+    <div class="field"><label>Scar Accumulation</label><div contenteditable="true">[Rules for displaying injury marks]</div></div>
+    <div class="field"><label>Clothing Aging</label><div contenteditable="true">[Rules for clothing aging over time]</div></div>
+    <div class="field"><label>Key Plot Visual Changes</label><div contenteditable="true">[Appearance changes at important plot points]</div></div>
+  </div>
+</div>
+
+<!-- Character Voice -->
+<h2 onclick="toggleSection(this)">▸ Character Voice / Audio</h2>
+<div class="card">
+  <div class="media-zone media-landscape" data-media-type="audio" data-prefix="char_voice" onclick="openImport(this)" style="min-height:70px;"><div class="empty-label"><span class="icon">🎤</span>Click to Add Voice Sample<span class="hint">mp3, wav, ogg</span></div></div>
+  <div class="field"><label>Voice Description</label><div contenteditable="true">[Voice characteristics, tone, accent notes]</div></div>
+</div>
+
+<!-- Change Log -->
+<h2 onclick="toggleSection(this)">▸ Change Log</h2>
+<div class="card">
+  <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+    <thead><tr style="background:var(--primary);color:#fff;"><th style="padding:0.4rem;text-align:left;">Date</th><th style="padding:0.4rem;text-align:left;">Change</th><th style="padding:0.4rem;text-align:left;">Reason</th></tr></thead>
+    <tbody id="changelog">
+      <tr><td style="padding:0.4rem;border-bottom:1px solid var(--border);">2026-05-15</td><td style="padding:0.4rem;border-bottom:1px solid var(--border);" contenteditable="true">[Initial creation]</td><td style="padding:0.4rem;border-bottom:1px solid var(--border);" contenteditable="true">[Reason]</td></tr>
+    </tbody>
+  </table>
+  <button class="btn" onclick="addChangelogEntry()" style="margin-top:0.4rem;">+ Add Entry</button>
+</div>
+</div><!-- /sheetContainer -->
+
+</div><!-- /container -->
+<div id="toast" class="toast">Saved</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  DATA LAYER — Multi-Item Project
+// ═══════════════════════════════════════════════
+const STORAGE_KEY = 'cms-vfm-character-template';
+const ITEM_TYPE = 'character';
+let appData = null;
+let currentMediaZone = null;
+let assetDirHandle = null;
+
+function createDefaultItem(index) {
+  const id = `${ITEM_TYPE}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
+  return {
+    id, name: `Character ${index}`,
+    created: new Date().toISOString(), updated: new Date().toISOString(),
+    data: {}, media: {}
+  };
+}
+
+function getDefaultProject() {
+  const item = createDefaultItem(1);
+  return { projectName: 'My Project', items: [item], activeItemId: item.id };
+}
+
+function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) { appData = getDefaultProject(); return; }
+  try {
+    const parsed = JSON.parse(raw);
+    // Detect old singleton format: flat object with keys like "Name", "Age" etc.
+    if (parsed && !parsed.items) {
+      // Migrate old format
+      const item = createDefaultItem(1);
+      // Extract text fields
+      Object.keys(parsed).forEach(k => {
+        if (k === 'media' && typeof parsed.media === 'object') {
+          item.media = parsed.media;
+        } else if (k !== 'projectName') {
+          item.data[k] = parsed[k];
+        }
+      });
+      appData = {
+        projectName: parsed.projectName || 'My Project',
+        items: [item],
+        activeItemId: item.id
+      };
+    } else {
+      appData = parsed;
+    }
+    if (!appData.items || appData.items.length === 0) {
+      const item = createDefaultItem(1);
+      appData.items = [item];
+      appData.activeItemId = item.id;
+    }
+    if (!appData.activeItemId || !appData.items.find(i => i.id === appData.activeItemId)) {
+      appData.activeItemId = appData.items[0].id;
+    }
+  } catch(e) { appData = getDefaultProject(); }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+}
+
+// ═══════════════════════════════════════════════
+//  ITEM CRUD
+// ═══════════════════════════════════════════════
+function getActiveItem() {
+  return appData.items.find(i => i.id === appData.activeItemId);
+}
+
+function addNewItem() {
+  const n = appData.items.length + 1;
+  const item = createDefaultItem(n);
+  appData.items.push(item);
+  switchToItem(item.id);
+  saveAll();
+  renderDashboard();
+  showToast(`➕ Added "${item.name}"`);
+}
+
+function switchToItem(id) {
+  const old = getActiveItem();
+  if (old) saveActiveContent(old);
+  appData.activeItemId = id;
+  saveData();
+  renderDashboard();
+  loadActiveContent(getActiveItem());
+}
+
+function duplicateItem(id) {
+  const src = appData.items.find(i => i.id === id);
+  if (!src) return;
+  const item = createDefaultItem(src.name + ' (copy)');
+  item.data = JSON.parse(JSON.stringify(src.data));
+  item.media = JSON.parse(JSON.stringify(src.media));
+  appData.items.push(item);
+  switchToItem(item.id);
+  saveAll();
+  renderDashboard();
+  showToast(`📋 Duplicated "${src.name}"`);
+}
+
+function renameItem(id, newName) {
+  const item = appData.items.find(i => i.id === id);
+  if (item) { item.name = newName; saveData(); renderDashboard(); }
+}
+
+function deleteItem(id) {
+  if (appData.items.length <= 1) { showToast('⚠️ Cannot delete the last item.'); return; }
+  if (!confirm('Delete this character? All data will be lost.')) return;
+  const idx = appData.items.findIndex(i => i.id === id);
+  appData.items = appData.items.filter(i => i.id !== id);
+  if (appData.activeItemId === id) {
+    const newIdx = Math.min(idx, appData.items.length - 1);
+    appData.activeItemId = appData.items[newIdx].id;
+  }
+  saveData();
+  renderDashboard();
+  loadActiveContent(getActiveItem());
+  showToast('🗑️ Deleted');
+}
+
+// ═══════════════════════════════════════════════
+//  SAVE / LOAD Active Content
+// ═══════════════════════════════════════════════
+const FIELD_SELECTORS = ['#char-name', '#char-project', '#char-version', '#sheetContainer [contenteditable]'];
+function collectFieldData() {
+  const data = {};
+  document.querySelectorAll('#sheetContainer [contenteditable]').forEach(el => {
+    const key = el.id || el.parentElement.querySelector('label')?.textContent || el.previousElementSibling?.textContent || '';
+    if (key) data[key] = el.innerHTML;
+  });
+  // Special fields
+  const nameEl = document.getElementById('char-name');
+  if (nameEl) data['_name'] = nameEl.textContent.trim();
+  return data;
+}
+
+function collectMediaData() {
+  const media = {};
+  document.querySelectorAll('#sheetContainer .media-zone').forEach(zone => {
+    const prefix = zone.dataset.prefix;
+    const path = zone.dataset.assetPath;
+    if (prefix && path) media[prefix] = path;
+  });
+  return media;
+}
+
+function applyFieldData(data) {
+  document.querySelectorAll('#sheetContainer [contenteditable]').forEach(el => {
+    const key = el.id || el.parentElement.querySelector('label')?.textContent || el.previousElementSibling?.textContent || '';
+    if (key && data[key] !== undefined) el.innerHTML = data[key];
+  });
+  const nameEl = document.getElementById('char-name');
+  if (nameEl && data['_name']) nameEl.textContent = data['_name'];
+}
+
+function applyMediaData(media) {
+  document.querySelectorAll('#sheetContainer .media-zone').forEach(zone => {
+    const prefix = zone.dataset.prefix;
+    if (!prefix) return;
+    const path = media[prefix];
+    if (path) {
+      zone.dataset.assetPath = path;
+      // Show a placeholder label with the filename since we can't load the actual file
+      const fname = path.split('/').pop();
+      const type = zone.dataset.mediaType;
+      const icon = type === 'image' ? '📷' : type === 'video' ? '🎬' : '🎤';
+      zone.innerHTML = `<div class="empty-label"><span class="icon">${icon}</span>${fname}<span class="hint">Saved reference</span></div>`;
+    } else {
+      // Reset to default empty state
+      zone.innerHTML = '';
+      if (!zone.dataset.mediaType) zone.dataset.mediaType = 'image';
+      const type = zone.dataset.mediaType;
+      const icon = type === 'image' ? '📷' : type === 'video' ? '🎬' : '🎤';
+      const label = type === 'image' ? 'Click to Add Image' : type === 'video' ? 'Click to Add Video' : 'Click to Add Audio';
+      zone.innerHTML = `<div class="empty-label"><span class="icon">${icon}</span>${label}<span class="hint">Click</span></div>`;
+      delete zone.dataset.assetPath;
+    }
+  });
+}
+
+function saveActiveContent(item) {
+  if (!item) return;
+  item.data = collectFieldData();
+  item.media = collectMediaData();
+  item.updated = new Date().toISOString();
+  saveData();
+}
+
+function loadActiveContent(item) {
+  if (!item) return;
+  document.getElementById('char-date').textContent = new Date().toISOString().slice(0,10);
+  applyFieldData(item.data || {});
+  applyMediaData(item.media || {});
+}
+
+function saveAll() {
+  const item = getActiveItem();
+  if (item) saveActiveContent(item);
+  // Save project name
+  const pn = document.getElementById('projectName');
+  if (pn) appData.projectName = pn.textContent.trim();
+  saveData();
+  document.getElementById('char-date').textContent = new Date().toISOString().slice(0,10);
+  showToast('💾 Saved');
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER DASHBOARD
+// ═══════════════════════════════════════════════
+function renderDashboard() {
+  const bar = document.getElementById('itemBar');
+  if (!bar) return;
+  bar.innerHTML = '';
+  // Project name
+  const pn = document.getElementById('projectName');
+  if (pn) pn.textContent = appData.projectName || 'My Project';
+  // Counter
+  const cnt = document.getElementById('charCount');
+  if (cnt) cnt.textContent = appData.items.length;
+
+  appData.items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'item-card' + (item.id === appData.activeItemId ? ' active' : '');
+    card.onclick = () => switchToItem(item.id);
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'item-name';
+    nameSpan.textContent = item.name;
+    card.appendChild(nameSpan);
+
+    const actions = document.createElement('span');
+    actions.className = 'item-actions';
+
+    const renameBtn = document.createElement('button');
+    renameBtn.textContent = '✎';
+    renameBtn.title = 'Rename';
+    renameBtn.onclick = e => { e.stopPropagation(); doRename(item.id); };
+    actions.appendChild(renameBtn);
+
+    const dupBtn = document.createElement('button');
+    dupBtn.textContent = '📋';
+    dupBtn.title = 'Duplicate';
+    dupBtn.onclick = e => { e.stopPropagation(); duplicateItem(item.id); };
+    actions.appendChild(dupBtn);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'del-btn';
+    delBtn.textContent = '✕';
+    delBtn.title = 'Delete';
+    delBtn.onclick = e => { e.stopPropagation(); deleteItem(item.id); };
+    actions.appendChild(delBtn);
+
+    card.appendChild(actions);
+    bar.appendChild(card);
+  });
+}
+
+function doRename(id) {
+  const item = appData.items.find(i => i.id === id);
+  if (!item) return;
+  const newName = prompt('Rename character:', item.name);
+  if (newName && newName.trim()) renameItem(id, newName.trim());
+}
+
+// ═══════════════════════════════════════════════
+//  TOGGLE SECTIONS
+// ═══════════════════════════════════════════════
+function toggleSection(el) {
+  const arrow = el.textContent.trim()[0];
+  el.textContent = el.textContent.replace(arrow, arrow === '▸' ? '▾' : '▸');
+  const card = el.nextElementSibling;
+  if (card && card.classList.contains('card')) card.style.display = card.style.display === 'none' ? '' : 'none';
+}
+
+// ═══════════════════════════════════════════════
+//  IMPORT MODAL
+// ═══════════════════════════════════════════════
+const ACCEPT_TYPES = {
+  image: { accept: 'image/*', hint: 'Formats: jpg, png, webp, gif, svg' },
+  video: { accept: 'video/*', hint: 'Formats: mp4, webm, mov' },
+  audio: { accept: 'audio/*', hint: 'Formats: mp3, wav, ogg, m4a' }
+};
+
+function openImport(zone) {
+  currentMediaZone = zone;
+  const type = zone.dataset.mediaType;
+  const info = ACCEPT_TYPES[type] || ACCEPT_TYPES.image;
+  document.getElementById('modalTitle').textContent = type === 'image' ? '📷 Import Image' : type === 'video' ? '🎬 Import Video' : '🎤 Import Audio';
+  document.getElementById('modalHint').textContent = `Click to select or paste a URL for the ${type}`;
+  document.getElementById('modalFormats').textContent = info.hint;
+  document.getElementById('urlInput').value = '';
+  document.getElementById('urlInputGroup').style.display = 'none';
+  document.getElementById('importModal').classList.add('active');
+  document.body.classList.add('modal-open');
+  window._pendingAccept = info.accept;
+}
+
+function closeModal() {
+  document.getElementById('importModal').classList.remove('active');
+  document.body.classList.remove('modal-open');
+  currentMediaZone = null;
+}
+
+function triggerFilePick() {
+  const accept = window._pendingAccept || 'image/*';
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = accept;
+  input.onchange = e => { if (e.target.files.length > 0) handleFileImport(e.target.files[0]); };
+  input.click(); closeModal();
+}
+
+function showUrlInput() { document.getElementById('urlInputGroup').style.display = 'flex'; }
+
+async function importFromUrl() {
+  const url = document.getElementById('urlInput').value.trim();
+  if (!url) return;
+  closeModal();
+  try {
+    const resp = await fetch(url, { mode: 'cors' });
+    if (!resp.ok) throw new Error('Fetch failed');
+    const blob = await resp.blob();
+    const ext = url.split('.').pop().split('?')[0] || 'file';
+    const file = new File([blob], `imported.${ext}`, { type: blob.type });
+    handleFileImport(file);
+  } catch (err) {
+    showToast('❌ Failed to load URL. CORS may be blocked.');
+    console.error(err);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  ASSET IMPORT
+// ═══════════════════════════════════════════════
+async function handleFileImport(file) {
+  const zone = currentMediaZone;
+  if (!zone) return;
+  const type = zone.dataset.mediaType;
+  const prefix = zone.dataset.prefix || 'asset';
+  const ts = new Date().toISOString().slice(0,19).replace(/[:-]/g, '');
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const filename = `${prefix}_${ts}_${safeName}`;
+  let subfolder = 'images/';
+  if (type === 'audio') subfolder = 'audios/';
+  else if (type === 'video') subfolder = 'videos/';
+  const relativePath = `Asset Files/${subfolder}${filename}`;
+  try {
+    await copyToAssetFolder(file, subfolder, filename, relativePath, zone);
+  } catch (err) {
+    showToast('⚠️ Directory access denied. Using embedded preview.');
+    displayFromBlob(file, zone, relativePath);
+  }
+}
+
+async function copyToAssetFolder(file, subfolder, filename, relativePath, zone) {
+  if (!assetDirHandle) assetDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+  let subHandle;
+  try { subHandle = await assetDirHandle.getDirectoryHandle(subfolder.replace('/', '')); }
+  catch { subHandle = await assetDirHandle.getDirectoryHandle(subfolder.replace('/', ''), { create: true }); }
+  const fileHandle = await subHandle.getFileHandle(filename, { create: true });
+  const writable = await fileHandle.createWritable();
+  await writable.write(file); await writable.close();
+  displayInZone(file, zone, relativePath, true);
+  showToast(`✅ Copied to ${relativePath}`);
+}
+
+function displayInZone(file, zone, relativePath, useFile) {
+  const type = zone.dataset.mediaType;
+  if (zone.dataset.blobUrl) { URL.revokeObjectURL(zone.dataset.blobUrl); delete zone.dataset.blobUrl; }
+  zone.innerHTML = '';
+  const rmBtn = document.createElement('button'); rmBtn.className = 'remove-btn'; rmBtn.innerHTML = '✕';
+  rmBtn.onclick = e => { e.stopPropagation(); clearMediaZone(zone); };
+  zone.appendChild(rmBtn);
+  const ovl = document.createElement('div'); ovl.className = 'replace-overlay'; ovl.textContent = '🔄 Click to Replace';
+  zone.appendChild(ovl);
+  let url;
+  if (useFile) { url = URL.createObjectURL(file); zone.dataset.blobUrl = url; }
+  else url = relativePath;
+  zone.dataset.assetPath = relativePath;
+  if (type === 'image') {
+    const img = document.createElement('img'); img.src = url; img.alt = relativePath; img.loading = 'lazy';
+    img.onclick = e => { e.stopPropagation(); openLightbox(img.src); };
+    zone.appendChild(img);
+  } else if (type === 'video') {
+    const vid = document.createElement('video'); vid.src = url; vid.controls = true; vid.preload = 'metadata'; vid.playsInline = true;
+    vid.style.width = '100%'; vid.style.height = '100%'; vid.style.objectFit = 'contain';
+    zone.appendChild(vid);
+  } else if (type === 'audio') {
+    const aud = document.createElement('audio'); aud.src = url; aud.controls = true; aud.preload = 'metadata';
+    aud.style.width = '100%';
+    zone.appendChild(aud);
+  }
+}
+
+function displayFromBlob(file, zone, relativePath) { displayInZone(file, zone, relativePath, true); }
+
+function clearMediaZone(zone) {
+  if (zone.dataset.blobUrl) { URL.revokeObjectURL(zone.dataset.blobUrl); delete zone.dataset.blobUrl; }
+  delete zone.dataset.assetPath;
+  const type = zone.dataset.mediaType;
+  const icon = type === 'image' ? '📷' : type === 'video' ? '🎬' : '🎤';
+  const label = type === 'image' ? 'Click to Add Image' : type === 'video' ? 'Click to Add Video' : 'Click to Add Audio';
+  zone.innerHTML = `<div class="empty-label"><span class="icon">${icon}</span>${label}<span class="hint">Click</span></div>`;
+}
+
+// Lightbox
+function openLightbox(src) { document.getElementById('lightboxImg').src = src; document.getElementById('lightbox').classList.add('active'); }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
+
+// Drag & Drop
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('#sheetContainer .media-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag-over');
+      if (e.dataTransfer.files.length > 0) { currentMediaZone = zone; handleFileImport(e.dataTransfer.files[0]); }
+    });
+  });
+});
+
+// Toast
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 2500); }
+
+// Export
+function exportHTML() {
+  saveAll();
+  const item = getActiveItem();
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  const name = item ? item.name : 'Character';
+  a.href = URL.createObjectURL(blob);
+  a.download = `${name}_Character_Sheet.html`;
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('📤 Exported');
+}
+
+// Reset
+function resetAll() {
+  if (confirm('Reset all data? This cannot be undone.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
+
+// Changelog
+function addChangelogEntry() {
+  const tbody = document.getElementById('changelog');
+  const today = new Date().toISOString().slice(0,10);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td style="padding:0.4rem;border-bottom:1px solid var(--border);">${today}</td><td style="padding:0.4rem;border-bottom:1px solid var(--border);" contenteditable="true">[Change description]</td><td style="padding:0.4rem;border-bottom:1px solid var(--border);" contenteditable="true">[Reason]</td>`;
+  tbody.appendChild(tr);
+}
+
+// ─── INIT ───
+loadData();
+renderDashboard();
+const activeItem = getActiveItem();
+if (activeItem) loadActiveContent(activeItem);
+
+// Auto-save
+setInterval(saveAll, 30000);
+window.addEventListener('beforeunload', saveAll);
+
+// Modal close on outside click
+document.getElementById('importModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Environment Design Sheets - CMS-VFM</title>
+<style>
+:root {
+  --primary: #1a5276;
+  --accent: #2ecc71;
+  --bg: #f0faf4;
+  --card-bg: #ffffff;
+  --text: #333333;
+  --text-light: #666666;
+  --border: #dee2e6;
+  --success: #27ae60;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 2rem;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+h1 { font-size: 2rem; margin-bottom: 0.5rem; color: var(--primary); }
+h2 {
+  font-size: 1.3rem; margin-top: 2rem; margin-bottom: 1rem;
+  padding-bottom: 0.5rem; border-bottom: 2px solid var(--accent);
+  color: var(--primary); cursor: pointer; user-select: none;
+}
+h2:hover { color: var(--accent); }
+.card { background: var(--card-bg); border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.field { margin-bottom: 0.8rem; }
+.field label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.2rem; }
+.field [contenteditable] { min-height: 1.5em; padding: 0.3rem 0.5rem; border: 1px dashed transparent; border-radius: 4px; transition: border-color 0.2s, background 0.2s; }
+.field [contenteditable]:hover { border-color: var(--border); }
+.field [contenteditable]:focus { border-color: var(--accent); outline: none; background: #f0fff4; }
+
+/* ── Media Zone ── */
+.media-zone { position: relative; width: 100%; min-height: 180px; border: 2px dashed var(--border); border-radius: 8px; background: linear-gradient(135deg, #f0fdf4, #e8f8f5); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; transition: border-color 0.2s, background 0.2s; margin-bottom: 0.8rem; }
+.media-zone:hover { border-color: var(--accent); background: #e6f7ed; }
+.media-zone.drag-over { border-color: var(--success); background: #d4edda; }
+.media-zone .empty-label { text-align: center; color: #999; padding: 2rem 1rem; pointer-events: none; }
+.media-zone .empty-label .icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+.media-zone .empty-label .hint { font-size: 0.75rem; margin-top: 0.3rem; opacity: 0.7; }
+.media-zone img, .media-zone video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
+.media-zone .replace-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: #fff; text-align: center; padding: 0.4rem; font-size: 0.8rem; transform: translateY(100%); transition: transform 0.2s; }
+.media-zone:hover .replace-overlay { transform: translateY(0); }
+.media-zone .remove-btn { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(0,0,0,0.5); color: #fff; cursor: pointer; font-size: 0.9rem; display: none; align-items: center; justify-content: center; z-index: 2; line-height: 1; }
+.media-zone:hover .remove-btn { display: flex; }
+.media-zone .remove-btn:hover { background: var(--accent); }
+.media-zone.media-landscape { aspect-ratio: 16/9; }
+.media-zone.media-floorplan { aspect-ratio: 4/3; }
+
+/* ── Dashboard ── */
+.dashboard { background: var(--card-bg); border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.dashboard-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+.dashboard-header .project-name { font-weight: 700; font-size: 1rem; color: var(--primary); min-width: 120px; }
+.dashboard-header .project-name[contenteditable]:hover { border-color: var(--border); }
+.dashboard-header .project-name[contenteditable]:focus { border-color: var(--accent); outline: none; background: #f0fff4; }
+.item-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.item-card { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.7rem; border-radius: 8px; border: 2px solid var(--border); background: var(--bg); cursor: pointer; transition: all 0.2s; font-size: 0.85rem; }
+.item-card:hover { border-color: var(--accent); }
+.item-card.active { border-color: var(--accent); background: #f0fff4; font-weight: 600; }
+.item-card .item-name { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-card .item-actions { display: flex; gap: 2px; margin-left: 4px; }
+.item-card .item-actions button { background: none; border: none; cursor: pointer; font-size: 0.75rem; padding: 2px 4px; border-radius: 4px; color: var(--text-light); transition: color 0.2s; }
+.item-card .item-actions button:hover { color: var(--accent); }
+.item-card .item-actions .del-btn:hover { color: #c0392b; }
+
+/* ── Toolbar ── */
+.toolbar { position: sticky; top: 0; background: var(--bg); padding: 0.6rem 0; z-index: 100; display: flex; gap: 0.4rem; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+.btn { padding: 0.35rem 0.9rem; border: 1px solid var(--border); border-radius: 6px; background: var(--card-bg); cursor: pointer; font-size: 0.8rem; transition: all 0.2s; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { opacity: 0.9; color: #fff; }
+.toast { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #fff; padding: 0.7rem 1.3rem; border-radius: 8px; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+.toast.show { opacity: 1; }
+
+/* ── Import Modal ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+.modal-overlay.active { display: flex; }
+.modal { background: #fff; border-radius: 12px; padding: 2rem; width: 90%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.modal h3 { margin-bottom: 1rem; font-size: 1.1rem; }
+.modal .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; flex-wrap: wrap; }
+.modal .modal-actions .btn { flex: 1; text-align: center; padding: 0.7rem 1rem; }
+.modal .url-input-group { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.modal .url-input-group input { flex: 1; padding: 0.5rem 0.8rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; }
+.modal .url-input-group input:focus { border-color: var(--accent); outline: none; }
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; cursor: zoom-out; }
+.lightbox.active { display: flex; }
+.lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 4px; }
+body.modal-open { overflow: hidden; }
+@media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } }
+</style>
+</head>
+<body>
+
+<!-- ─── Import Modal ─── -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h3 id="modalTitle">📁 Import Media</h3>
+    <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:1rem;" id="modalHint">Select a file or paste a URL</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="triggerFilePick()">📁 Choose File</button>
+      <button class="btn" onclick="showUrlInput()">🔗 From URL</button>
+    </div>
+    <div class="url-input-group" id="urlInputGroup" style="display:none;">
+      <input type="text" id="urlInput" placeholder="Paste image/video/audio URL here..." onkeydown="if(event.key==='Enter')importFromUrl()">
+      <button class="btn btn-primary" onclick="importFromUrl()">Import</button>
+    </div>
+    <p style="font-size:0.75rem;color:var(--text-light);margin-top:1rem;" id="modalFormats"></p>
+  </div>
+</div>
+
+<!-- ─── Lightbox ─── -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="Full size preview">
+</div>
+
+<div class="container">
+
+<!-- ─── Toolbar ─── -->
+<div class="toolbar">
+  <button class="btn" onclick="saveAll()">💾 Save</button>
+  <button class="btn" onclick="exportHTML()">📤 Export</button>
+  <button class="btn" onclick="resetAll()">🔄 Reset</button>
+  <span style="flex:1"></span>
+  <span style="font-size:0.75rem;color:var(--text-light)">✏️ Click text to edit · Scenes: <span id="sceneCount">1</span></span>
+</div>
+
+<!-- ─── Dashboard: Multi-Scene Manager ─── -->
+<div class="dashboard" id="dashboard">
+  <div class="dashboard-header">
+    <span>🏞️</span>
+    <span class="project-name" contenteditable="true" id="projectName">My Project</span>
+    <span style="font-size:0.8rem;color:var(--text-light);">— Scenes</span>
+    <span style="flex:1"></span>
+    <button class="btn" onclick="addNewItem()" style="font-size:0.8rem;">➕ Add Scene</button>
+  </div>
+  <div class="item-bar" id="itemBar"></div>
+</div>
+
+<!-- ─── Sheet content (active scene renders here) ─── -->
+<div id="sheetContainer">
+
+<h1>🏞️ Environment Design Sheet · <span contenteditable="true" id="scene-name" style="color:var(--accent);">[Scene Name]</span></h1>
+<p style="color:var(--text-light);margin-bottom:2rem;">
+  Project: <span contenteditable="true" id="scene-project">[Project Name]</span> ·
+  Version: <span contenteditable="true" id="scene-version">1.0</span> ·
+  Updated: <span id="scene-date">2026-05-15</span>
+</p>
+
+<!-- ═══════ 2.1 Scene Tone & Mood ═══════ -->
+<h2 onclick="toggleSection(this)">▸ 2.1 Scene Tone & Mood</h2>
+<div class="card">
+  <div class="media-zone media-landscape" data-media-type="image" data-prefix="scene_concept" onclick="openImport(this)"><div class="empty-label"><span class="icon">🌄</span>Click to Add Concept Art<span class="hint">jpg, png, webp</span></div></div>
+  <div class="grid-2">
+    <div class="field"><label>Color Palette</label><div contenteditable="true">[Scene main color tone and color scheme]</div></div>
+    <div class="field"><label>Lighting Setup</label><div contenteditable="true">[Lighting setup and light-shadow effects]</div></div>
+    <div class="field"><label>Weather</label><div contenteditable="true">[Weather change rules]</div></div>
+    <div class="field"><label>Era Background</label><div contenteditable="true">[Era background setting]</div></div>
+  </div>
+</div>
+
+<!-- ═══════ 2.2 Spatial Blueprint ═══════ -->
+<h2 onclick="toggleSection(this)">▸ 2.2 Spatial Blueprint</h2>
+<div class="card">
+  <div class="media-zone media-floorplan" data-media-type="image" data-prefix="scene_floorplan" onclick="openImport(this)"><div class="empty-label"><span class="icon">🏗️</span>Click to Add Floor Plan<span class="hint">jpg, png, webp, svg</span></div></div>
+  <div class="grid-3">
+    <div class="field"><label>Main Scene Layout</label><div contenteditable="true">[Scene layout design]</div></div>
+    <div class="field"><label>Key Areas</label><div contenteditable="true">[Important area identification]</div></div>
+    <div class="field"><label>Interactive Objects</label><div contenteditable="true">[Interactive object definitions]</div></div>
+  </div>
+</div>
+
+<!-- ═══════ 2.3 Environment Levels ═══════ -->
+<h2 onclick="toggleSection(this)">▸ 2.3 Environment Levels</h2>
+<div class="card">
+  <div class="grid-3">
+    <div class="field"><label>Foreground</label><div contenteditable="true">[Close-up visual density and detail level]</div></div>
+    <div class="field"><label>Midground</label><div contenteditable="true">[Mid-range visual density and detail level]</div></div>
+    <div class="field"><label>Background</label><div contenteditable="true">[Distant visual density and detail level]</div></div>
+  </div>
+</div>
+
+<!-- ═══════ 2.4 Scene Transition Rules ═══════ -->
+<h2 onclick="toggleSection(this)">▸ 2.4 Scene Transition Rules</h2>
+<div class="card">
+  <div class="grid-2">
+    <div class="field"><label>Time Changes</label><div contenteditable="true">[Day-night transition rules]</div></div>
+    <div class="field"><label>Seasonal Changes</label><div contenteditable="true">[Seasonal transition rules]</div></div>
+    <div class="field"><label>Damage / Repair States</label><div contenteditable="true">[Scene damage and repair rules]</div></div>
+    <div class="field"><label>Multi-shot Lighting Consistency</label><div contenteditable="true">[Lighting uniformity across different shots]</div></div>
+  </div>
+</div>
+
+<!-- ═══════ Transition Preview (Video) ═══════ -->
+<h2 onclick="toggleSection(this)">▸ Scene Transition Preview</h2>
+<div class="card">
+  <div class="media-zone media-landscape" data-media-type="video" data-prefix="scene_transition" onclick="openImport(this)"><div class="empty-label"><span class="icon">🎬</span>Click to Add Transition Animation<span class="hint">mp4, webm, mov</span></div></div>
+  <div class="field"><label>Transition Notes</label><div contenteditable="true">[Description of the transition effect, duration, and visual notes]</div></div>
+</div>
+
+<!-- ═══════ Environmental Ambience (Audio) ═══════ -->
+<h2 onclick="toggleSection(this)">▸ Environmental Ambience</h2>
+<div class="card">
+  <div class="media-zone media-landscape" data-media-type="audio" data-prefix="scene_ambience" onclick="openImport(this)" style="min-height:70px;"><div class="empty-label"><span class="icon">🔊</span>Click to Add Ambient Sound<span class="hint">mp3, wav, ogg</span></div></div>
+  <div class="field"><label>Sound Description</label><div contenteditable="true">[Description of ambient sounds, background noise, atmospheric audio]</div></div>
+</div>
+
+<!-- ═══════ Change Log ═══════ -->
+<h2 onclick="toggleSection(this)">▸ Change Log</h2>
+<div class="card">
+  <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+    <thead><tr style="background:var(--primary);color:#fff;"><th style="padding:0.4rem;text-align:left;">Date</th><th style="padding:0.4rem;text-align:left;">Change</th><th style="padding:0.4rem;text-align:left;">Reason</th></tr></thead>
+    <tbody id="changelog">
+      <tr><td style="padding:0.4rem;border-bottom:1px solid var(--border);">2026-05-15</td><td style="padding:0.4rem;border-bottom:1px solid var(--border);" contenteditable="true">[Initial creation]</td><td style="padding:0.4rem;border-bottom:1px solid var(--border);" contenteditable="true">[Reason]</td></tr>
+    </tbody>
+  </table>
+  <button class="btn" onclick="addChangelogEntry()" style="margin-top:0.4rem;">+ Add Entry</button>
+</div>
+</div><!-- /sheetContainer -->
+
+</div><!-- /container -->
+<div id="toast" class="toast">Saved</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  DATA LAYER — Multi-Scene Project
+// ═══════════════════════════════════════════════
+const STORAGE_KEY = 'cms-vfm-scene-template';
+const ITEM_TYPE = 'scene';
+let appData = null;
+let currentMediaZone = null;
+let assetDirHandle = null;
+
+function createDefaultItem(index) {
+  const id = `${ITEM_TYPE}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
+  return { id, name: `Scene ${index}`, created: new Date().toISOString(), updated: new Date().toISOString(), data: {}, media: {} };
+}
+
+function getDefaultProject() {
+  const item = createDefaultItem(1);
+  return { projectName: 'My Project', items: [item], activeItemId: item.id };
+}
+
+function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) { appData = getDefaultProject(); return; }
+  try {
+    const parsed = JSON.parse(raw);
+    // Detect old singleton format
+    if (parsed && !parsed.items) {
+      const item = createDefaultItem(1);
+      Object.keys(parsed).forEach(k => {
+        if (k === 'media' && typeof parsed.media === 'object') { item.media = parsed.media; }
+        else if (k !== 'projectName') { item.data[k] = parsed[k]; }
+      });
+      appData = { projectName: parsed.projectName || 'My Project', items: [item], activeItemId: item.id };
+    } else {
+      appData = parsed;
+    }
+    if (!appData.items || appData.items.length === 0) { const item = createDefaultItem(1); appData.items = [item]; appData.activeItemId = item.id; }
+    if (!appData.activeItemId || !appData.items.find(i => i.id === appData.activeItemId)) { appData.activeItemId = appData.items[0].id; }
+  } catch(e) { appData = getDefaultProject(); }
+}
+
+function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+
+function getActiveItem() { return appData.items.find(i => i.id === appData.activeItemId); }
+
+// ─── Item CRUD ───
+function addNewItem() {
+  const n = appData.items.length + 1;
+  const item = createDefaultItem(n);
+  appData.items.push(item);
+  switchToItem(item.id);
+  saveAll(); renderDashboard();
+  showToast(`➕ Added "${item.name}"`);
+}
+
+function switchToItem(id) {
+  const old = getActiveItem();
+  if (old) saveActiveContent(old);
+  appData.activeItemId = id;
+  saveData();
+  renderDashboard();
+  loadActiveContent(getActiveItem());
+}
+
+function duplicateItem(id) {
+  const src = appData.items.find(i => i.id === id);
+  if (!src) return;
+  const item = createDefaultItem(src.name + ' (copy)');
+  item.data = JSON.parse(JSON.stringify(src.data));
+  item.media = JSON.parse(JSON.stringify(src.media));
+  appData.items.push(item);
+  switchToItem(item.id);
+  saveAll(); renderDashboard();
+  showToast(`📋 Duplicated "${src.name}"`);
+}
+
+function renameItem(id, newName) {
+  const item = appData.items.find(i => i.id === id);
+  if (item) { item.name = newName; saveData(); renderDashboard(); }
+}
+
+function deleteItem(id) {
+  if (appData.items.length <= 1) { showToast('⚠️ Cannot delete the last item.'); return; }
+  if (!confirm('Delete this scene? All data will be lost.')) return;
+  const idx = appData.items.findIndex(i => i.id === id);
+  appData.items = appData.items.filter(i => i.id !== id);
+  if (appData.activeItemId === id) { appData.activeItemId = appData.items[Math.min(idx, appData.items.length - 1)].id; }
+  saveData(); renderDashboard(); loadActiveContent(getActiveItem());
+  showToast('🗑️ Deleted');
+}
+
+// ─── Save/Load Content ───
+function collectFieldData() {
+  const data = {};
+  document.querySelectorAll('#sheetContainer [contenteditable]').forEach(el => {
+    const key = el.id || el.parentElement.querySelector('label')?.textContent || el.previousElementSibling?.textContent || '';
+    if (key) data[key] = el.innerHTML;
+  });
+  const nameEl = document.getElementById('scene-name');
+  if (nameEl) data['_name'] = nameEl.textContent.trim();
+  return data;
+}
+
+function collectMediaData() {
+  const media = {};
+  document.querySelectorAll('#sheetContainer .media-zone').forEach(zone => {
+    const prefix = zone.dataset.prefix;
+    const path = zone.dataset.assetPath;
+    if (prefix && path) media[prefix] = path;
+  });
+  return media;
+}
+
+function applyFieldData(data) {
+  document.querySelectorAll('#sheetContainer [contenteditable]').forEach(el => {
+    const key = el.id || el.parentElement.querySelector('label')?.textContent || el.previousElementSibling?.textContent || '';
+    if (key && data[key] !== undefined) el.innerHTML = data[key];
+  });
+  const nameEl = document.getElementById('scene-name');
+  if (nameEl && data['_name']) nameEl.textContent = data['_name'];
+}
+
+function applyMediaData(media) {
+  document.querySelectorAll('#sheetContainer .media-zone').forEach(zone => {
+    const prefix = zone.dataset.prefix;
+    if (!prefix) return;
+    const path = media[prefix];
+    if (path) {
+      zone.dataset.assetPath = path;
+      const fname = path.split('/').pop();
+      const type = zone.dataset.mediaType;
+      const icon = type === 'image' ? '🌄' : type === 'video' ? '🎬' : '🔊';
+      zone.innerHTML = `<div class="empty-label"><span class="icon">${icon}</span>${fname}<span class="hint">Saved reference</span></div>`;
+    } else {
+      zone.innerHTML = '';
+      if (!zone.dataset.mediaType) zone.dataset.mediaType = 'image';
+      const type = zone.dataset.mediaType;
+      const icon = type === 'image' ? '🌄' : type === 'video' ? '🎬' : '🔊';
+      const label = type === 'image' ? 'Click to Add Image' : type === 'video' ? 'Click to Add Video' : 'Click to Add Audio';
+      zone.innerHTML = `<div class="empty-label"><span class="icon">${icon}</span>${label}<span class="hint">Click</span></div>`;
+      delete zone.dataset.assetPath;
+    }
+  });
+}
+
+function saveActiveContent(item) {
+  if (!item) return;
+  item.data = collectFieldData();
+  item.media = collectMediaData();
+  item.updated = new Date().toISOString();
+  saveData();
+}
+
+function loadActiveContent(item) {
+  if (!item) return;
+  document.getElementById('scene-date').textContent = new Date().toISOString().slice(0,10);
+  applyFieldData(item.data || {});
+  applyMediaData(item.media || {});
+}
+
+function saveAll() {
+  const item = getActiveItem();
+  if (item) saveActiveContent(item);
+  const pn = document.getElementById('projectName');
+  if (pn) appData.projectName = pn.textContent.trim();
+  saveData();
+  document.getElementById('scene-date').textContent = new Date().toISOString().slice(0,10);
+  showToast('💾 Saved');
+}
+
+// ─── Render Dashboard ───
+function renderDashboard() {
+  const bar = document.getElementById('itemBar');
+  if (!bar) return;
+  bar.innerHTML = '';
+  const pn = document.getElementById('projectName');
+  if (pn) pn.textContent = appData.projectName || 'My Project';
+  const cnt = document.getElementById('sceneCount');
+  if (cnt) cnt.textContent = appData.items.length;
+
+  appData.items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'item-card' + (item.id === appData.activeItemId ? ' active' : '');
+    card.onclick = () => switchToItem(item.id);
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'item-name';
+    nameSpan.textContent = item.name;
+    card.appendChild(nameSpan);
+    const actions = document.createElement('span');
+    actions.className = 'item-actions';
+    const renameBtn = document.createElement('button');
+    renameBtn.textContent = '✎'; renameBtn.title = 'Rename';
+    renameBtn.onclick = e => { e.stopPropagation(); doRename(item.id); };
+    actions.appendChild(renameBtn);
+    const dupBtn = document.createElement('button');
+    dupBtn.textContent = '📋'; dupBtn.title = 'Duplicate';
+    dupBtn.onclick = e => { e.stopPropagation(); duplicateItem(item.id); };
+    actions.appendChild(dupBtn);
+    const delBtn = document.createElement('button');
+    delBtn.className = 'del-btn'; delBtn.textContent = '✕'; delBtn.title = 'Delete';
+    delBtn.onclick = e => { e.stopPropagation(); deleteItem(item.id); };
+    actions.appendChild(delBtn);
+    card.appendChild(actions);
+    bar.appendChild(card);
+  });
+}
+
+function doRename(id) {
+  const item = appData.items.find(i => i.id === id);
+  if (!item) return;
+  const newName = prompt('Rename scene:', item.name);
+  if (newName && newName.trim()) renameItem(id, newName.trim());
+}
+
+// ─── Toggle Sections ───
+function toggleSection(el) {
+  const arrow = el.textContent.trim()[0];
+  el.textContent = el.textContent.replace(arrow, arrow === '▸' ? '▾' : '▸');
+  const card = el.nextElementSibling;
+  if (card && card.classList.contains('card')) card.style.display = card.style.display === 'none' ? '' : 'none';
+}
+
+// ─── Import Modal ───
+const ACCEPT_TYPES = {
+  image: { accept: 'image/*', hint: 'Formats: jpg, png, webp, gif, svg' },
+  video: { accept: 'video/*', hint: 'Formats: mp4, webm, mov' },
+  audio: { accept: 'audio/*', hint: 'Formats: mp3, wav, ogg, m4a' }
+};
+
+function openImport(zone) {
+  currentMediaZone = zone;
+  const type = zone.dataset.mediaType;
+  const info = ACCEPT_TYPES[type] || ACCEPT_TYPES.image;
+  document.getElementById('modalTitle').textContent = type === 'image' ? '🌄 Import Image' : type === 'video' ? '🎬 Import Video' : '🔊 Import Audio';
+  document.getElementById('modalHint').textContent = `Click to select or paste a URL for the ${type}`;
+  document.getElementById('modalFormats').textContent = info.hint;
+  document.getElementById('urlInput').value = '';
+  document.getElementById('urlInputGroup').style.display = 'none';
+  document.getElementById('importModal').classList.add('active');
+  document.body.classList.add('modal-open');
+  window._pendingAccept = info.accept;
+}
+
+function closeModal() { document.getElementById('importModal').classList.remove('active'); document.body.classList.remove('modal-open'); currentMediaZone = null; }
+
+function triggerFilePick() {
+  const accept = window._pendingAccept || 'image/*';
+  const input = document.createElement('input'); input.type = 'file'; input.accept = accept;
+  input.onchange = e => { if (e.target.files.length > 0) handleFileImport(e.target.files[0]); };
+  input.click(); closeModal();
+}
+
+function showUrlInput() { document.getElementById('urlInputGroup').style.display = 'flex'; }
+
+async function importFromUrl() {
+  const url = document.getElementById('urlInput').value.trim();
+  if (!url) return;
+  closeModal();
+  try {
+    const resp = await fetch(url, { mode: 'cors' });
+    if (!resp.ok) throw new Error('Fetch failed');
+    const blob = await resp.blob();
+    const ext = url.split('.').pop().split('?')[0] || 'file';
+    const file = new File([blob], `imported.${ext}`, { type: blob.type });
+    handleFileImport(file);
+  } catch (err) { showToast('❌ Failed to load URL. CORS may be blocked.'); console.error(err); }
+}
+
+// ─── Asset Import ───
+async function handleFileImport(file) {
+  const zone = currentMediaZone;
+  if (!zone) return;
+  const type = zone.dataset.mediaType;
+  const prefix = zone.dataset.prefix || 'asset';
+  const ts = new Date().toISOString().slice(0,19).replace(/[:-]/g, '');
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const filename = `${prefix}_${ts}_${safeName}`;
+  let subfolder = 'images/';
+  if (type === 'audio') subfolder = 'audios/';
+  else if (type === 'video') subfolder = 'videos/';
+  const relativePath = `Asset Files/${subfolder}${filename}`;
+  try { await copyToAssetFolder(file, subfolder, filename, relativePath, zone); }
+  catch (err) { showToast('⚠️ Directory access denied. Using embedded preview.'); displayFromBlob(file, zone, relativePath); }
+}
+
+async function copyToAssetFolder(file, subfolder, filename, relativePath, zone) {
+  if (!assetDirHandle) assetDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+  let subHandle;
+  try { subHandle = await assetDirHandle.getDirectoryHandle(subfolder.replace('/', '')); }
+  catch { subHandle = await assetDirHandle.getDirectoryHandle(subfolder.replace('/', ''), { create: true }); }
+  const fileHandle = await subHandle.getFileHandle(filename, { create: true });
+  const writable = await fileHandle.createWritable();
+  await writable.write(file); await writable.close();
+  displayInZone(file, zone, relativePath, true);
+  showToast(`✅ Copied to ${relativePath}`);
+}
+
+function displayInZone(file, zone, relativePath, useFile) {
+  const type = zone.dataset.mediaType;
+  if (zone.dataset.blobUrl) { URL.revokeObjectURL(zone.dataset.blobUrl); delete zone.dataset.blobUrl; }
+  zone.innerHTML = '';
+  const rmBtn = document.createElement('button'); rmBtn.className = 'remove-btn'; rmBtn.innerHTML = '✕';
+  rmBtn.onclick = e => { e.stopPropagation(); clearMediaZone(zone); }; zone.appendChild(rmBtn);
+  const ovl = document.createElement('div'); ovl.className = 'replace-overlay'; ovl.textContent = '🔄 Click to Replace'; zone.appendChild(ovl);
+  let url;
+  if (useFile) { url = URL.createObjectURL(file); zone.dataset.blobUrl = url; }
+  else url = relativePath;
+  zone.dataset.assetPath = relativePath;
+  if (type === 'image') {
+    const img = document.createElement('img'); img.src = url; img.alt = relativePath; img.loading = 'lazy';
+    img.onclick = e => { e.stopPropagation(); openLightbox(img.src); }; zone.appendChild(img);
+  } else if (type === 'video') {
+    const vid = document.createElement('video'); vid.src = url; vid.controls = true; vid.preload = 'metadata'; vid.playsInline = true;
+    vid.style.width = '100%'; vid.style.height = '100%'; vid.style.objectFit = 'contain'; zone.appendChild(vid);
+  } else if (type === 'audio') {
+    const aud = document.createElement('audio'); aud.src = url; aud.controls = true; aud.preload = 'metadata';
+    aud.style.width = '100%'; zone.appendChild(aud);
+  }
+}
+
+function displayFromBlob(file, zone, relativePath) { displayInZone(file, zone, relativePath, true); }
+
+function clearMediaZone(zone) {
+  if (zone.dataset.blobUrl) { URL.revokeObjectURL(zone.dataset.blobUrl); delete zone.dataset.blobUrl; }
+  delete zone.dataset.assetPath;
+  const type = zone.dataset.mediaType;
+  const icon = type === 'image' ? '🌄' : type === 'video' ? '🎬' : '🔊';
+  const label = type === 'image' ? 'Click to Add Image' : type === 'video' ? 'Click to Add Video' : 'Click to Add Audio';
+  zone.innerHTML = `<div class="empty-label"><span class="icon">${icon}</span>${label}<span class="hint">Click</span></div>`;
+}
+
+// ─── Lightbox ───
+function openLightbox(src) { document.getElementById('lightboxImg').src = src; document.getElementById('lightbox').classList.add('active'); }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
+
+// ─── Drag & Drop ───
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('#sheetContainer .media-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); if (e.dataTransfer.files.length > 0) { currentMediaZone = zone; handleFileImport(e.dataTransfer.files[0]); } });
+  });
+});
+
+// ─── Toast ───
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 2500); }
+
+// ─── Export ───
+function exportHTML() {
+  saveAll();
+  const item = getActiveItem();
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  const name = item ? item.name : 'Scene';
+  a.href = URL.createObjectURL(blob); a.download = `${name}_Environment_Sheet.html`;
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('📤 Exported');
+}
+
+// ─── Reset ───
+function resetAll() {
+  if (confirm('Reset all data? This cannot be undone.')) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+}
+
+// ─── Changelog ───
+function addChangelogEntry() {
+  const tbody = document.getElementById('changelog');
+  const today = new Date().toISOString().slice(0,10);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td style="padding:0.4rem;border-bottom:1px solid var(--border);">${today}</td><td style="padding:0.4rem;border-bottom:1px solid var(--border);" contenteditable="true">[Change description]</td><td style="padding:0.4rem;border-bottom:1px solid var(--border);" contenteditable="true">[Reason]</td>`;
+  tbody.appendChild(tr);
+}
+
+// ─── INIT ───
+loadData();
+renderDashboard();
+const activeItem = getActiveItem();
+if (activeItem) loadActiveContent(activeItem);
+
+setInterval(saveAll, 30000);
+window.addEventListener('beforeunload', saveAll);
+document.getElementById('importModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+</script>
+</body>
+</html>
