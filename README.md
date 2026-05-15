@@ -1,5 +1,5 @@
 # CMS-VFM (Visual Standardization Management) README
-
+Is a Character Model Sheet-SKILLS for Video generation that work on AGENT
 ## Overview
 CMS‑VFM is an engineering-oriented specification for video generation. By defining characters and scripts upfront, it ensures consistent character appearance, proportions, and developmental continuity across long narratives, multi-shot sequences, and cross-scene transitions—enabling smooth visual coherence throughout the entire story.
 
