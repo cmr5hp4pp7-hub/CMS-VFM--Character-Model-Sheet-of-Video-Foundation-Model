@@ -29,6 +29,7 @@ Determine what the user needs:
 ### Step 2.1: Gather Character Information
 
 Ask the user for:
+
 - **Character Profile**: Name, age, height, body type, race, occupation, personality
 - **Appearance**: Facial proportions, skin tone, hairstyle, body type, signature features
 - **Wardrobe**: Casual, formal, seasonal variations, color scheme
@@ -39,6 +40,7 @@ Ask the user for:
 ### Step 2.2: Gather Environment Information
 
 Ask the user for:
+
 - **Scene Tone & Mood**: Color palette, lighting setup, weather rules, era background
 - **Spatial Blueprint**: Floor plan, key areas, interactive objects
 - **Environment Levels**: Foreground, midground, background detail levels
@@ -53,6 +55,10 @@ Generate a self-contained HTML specification document following these rules:
 3. Use `localStorage` for auto-save
 4. Use CSS variables for consistent theming
 5. Embed reference images as base64 when possible
+6. **Local Asset Management & Directory Access**:
+   - By default, imported media assets (images, videos, audios) are copied and saved to the local assets directory inside the cloned repository: `Settings&Asset Files/Asset Files`.
+   - When importing files or URLs via the in-browser HTML editor, the browser will prompt: *"Select the location where this website can save changes".
+   - **Crucial Requirement**: The user **MUST** select the `Settings&Asset Files/Asset Files` folder inside their local `CMS-VFM` project directory in the dialog to grant read/write permissions. This allows the editor to copy the assets into the folder and link them via correct relative paths (`Asset Files/images/...`, etc.).
 
 Refer to the frontend-slides core module for HTML document creation patterns: **`core/frontend-slides/SKILL.md`**
 
@@ -63,6 +69,7 @@ Refer to the frontend-slides core module for HTML document creation patterns: **
 ### Step 3.1: Load Required Documents
 
 Read these files before generating:
+
 - Character Design Sheet (if exists in `Settings&Asset Files/`)
 - Environment Design Sheet (if exists)
 - Props & Belongings Sheet (if needed)
@@ -89,6 +96,7 @@ Environment consistency:
 ### Step 3.3: State Tracking After Generation
 
 Update the spec documents with:
+
 - Current clothing state
 - Current scene state (time, weather, item positions)
 - Any character evolution changes
@@ -99,6 +107,7 @@ Update the spec documents with:
 ### Step 4.1: Identify Changes
 
 Ask the user:
+
 - What changed? Character appearance / Environment / Props / Evolution / Other
 - Is this a permanent or temporary change?
 - Does this affect continuity with previously generated content?
@@ -113,6 +122,7 @@ Ask the user:
 ### Step 4.3: Record Change Log
 
 Each update must include:
+
 ```
 Date: [YYYY-MM-DD]
 Change: [Description]
@@ -139,9 +149,9 @@ When verifying visual coherence across shots:
 | **`simple struct.md`** | Simplified structure template | Phase 2 (creation) |
 | **`Remind.md`** | Best practices, common mistakes, and state updates | Phase 3 (generation) |
 | **`Settings&Asset Files/Example Based on readme.html`** | HTML document example | Phase 2 (creation) |
-| **`Claude_Skills_官方标准规范.md`** | Official SKILL.md format specification | Configuration |
 
 ### Related Skills
+
 - **`core/frontend-slides/SKILL.md`** — [Optional Core Module] HTML presentation creation for specification documents
 
 ## Optional Core Modules

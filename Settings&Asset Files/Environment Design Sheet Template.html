@@ -357,11 +357,7 @@ function applyMediaData(media) {
     if (!prefix) return;
     const path = media[prefix];
     if (path) {
-      zone.dataset.assetPath = path;
-      const fname = path.split('/').pop();
-      const type = zone.dataset.mediaType;
-      const icon = type === 'image' ? '🌄' : type === 'video' ? '🎬' : '🔊';
-      zone.innerHTML = `<div class="empty-label"><span class="icon">${icon}</span>${fname}<span class="hint">Saved reference</span></div>`;
+      displayInZone(null, zone, path, false);
     } else {
       zone.innerHTML = '';
       if (!zone.dataset.mediaType) zone.dataset.mediaType = 'image';
@@ -476,30 +472,27 @@ function closeModal() { document.getElementById('importModal').classList.remove(
 
 function triggerFilePick() {
   const accept = window._pendingAccept || 'image/*';
+  const zone = currentMediaZone;
   const input = document.createElement('input'); input.type = 'file'; input.accept = accept;
-  input.onchange = e => { if (e.target.files.length > 0) handleFileImport(e.target.files[0]); };
+  input.onchange = e => { if (e.target.files.length > 0) handleFileImport(e.target.files[0], zone); };
   input.click(); closeModal();
 }
 
 function showUrlInput() { document.getElementById('urlInputGroup').style.display = 'flex'; }
 
-async function importFromUrl() {
+function importFromUrl() {
   const url = document.getElementById('urlInput').value.trim();
   if (!url) return;
+  const zone = currentMediaZone;
   closeModal();
-  try {
-    const resp = await fetch(url, { mode: 'cors' });
-    if (!resp.ok) throw new Error('Fetch failed');
-    const blob = await resp.blob();
-    const ext = url.split('.').pop().split('?')[0] || 'file';
-    const file = new File([blob], `imported.${ext}`, { type: blob.type });
-    handleFileImport(file);
-  } catch (err) { showToast('❌ Failed to load URL. CORS may be blocked.'); console.error(err); }
+  displayInZone(null, zone, url, false);
+  showToast('🔗 External link loaded');
+  saveAll();
 }
 
 // ─── Asset Import ───
-async function handleFileImport(file) {
-  const zone = currentMediaZone;
+async function handleFileImport(file, passedZone) {
+  const zone = passedZone || currentMediaZone;
   if (!zone) return;
   const type = zone.dataset.mediaType;
   const prefix = zone.dataset.prefix || 'asset';
@@ -529,31 +522,81 @@ async function copyToAssetFolder(file, subfolder, filename, relativePath, zone) 
 function displayInZone(file, zone, relativePath, useFile) {
   const type = zone.dataset.mediaType;
   if (zone.dataset.blobUrl) { URL.revokeObjectURL(zone.dataset.blobUrl); delete zone.dataset.blobUrl; }
+
+  if (useFile && zone.dataset.assetPath && zone.dataset.assetPath !== relativePath) {
+    deleteAssetFile(zone.dataset.assetPath);
+  }
+
   zone.innerHTML = '';
   const rmBtn = document.createElement('button'); rmBtn.className = 'remove-btn'; rmBtn.innerHTML = '✕';
-  rmBtn.onclick = e => { e.stopPropagation(); clearMediaZone(zone); }; zone.appendChild(rmBtn);
+  rmBtn.onclick = async e => { e.stopPropagation(); await clearMediaZone(zone); }; zone.appendChild(rmBtn);
   const ovl = document.createElement('div'); ovl.className = 'replace-overlay'; ovl.textContent = '🔄 Click to Replace'; zone.appendChild(ovl);
   let url;
   if (useFile) { url = URL.createObjectURL(file); zone.dataset.blobUrl = url; }
   else url = relativePath;
   zone.dataset.assetPath = relativePath;
+
+  const fallback = () => {
+    const fname = relativePath.split('/').pop();
+    const icon = type === 'image' ? '🌄' : type === 'video' ? '🎬' : '🔊';
+    zone.querySelectorAll('.empty-label, img, video, audio').forEach(el => el.remove());
+    const errDiv = document.createElement('div');
+    errDiv.className = 'empty-label';
+    errDiv.innerHTML = `<span class="icon">${icon}</span>${fname}<span class="hint">Saved reference</span>`;
+    zone.appendChild(errDiv);
+  };
+
   if (type === 'image') {
     const img = document.createElement('img'); img.src = url; img.alt = relativePath; img.loading = 'lazy';
-    img.onclick = e => { e.stopPropagation(); openLightbox(img.src); }; zone.appendChild(img);
+    img.onclick = e => { e.stopPropagation(); openLightbox(img.src); };
+    img.onerror = () => { if (!useFile) fallback(); };
+    zone.appendChild(img);
   } else if (type === 'video') {
     const vid = document.createElement('video'); vid.src = url; vid.controls = true; vid.preload = 'metadata'; vid.playsInline = true;
-    vid.style.width = '100%'; vid.style.height = '100%'; vid.style.objectFit = 'contain'; zone.appendChild(vid);
+    vid.style.width = '100%'; vid.style.height = '100%'; vid.style.objectFit = 'contain';
+    vid.onerror = () => { if (!useFile) fallback(); };
+    zone.appendChild(vid);
   } else if (type === 'audio') {
     const aud = document.createElement('audio'); aud.src = url; aud.controls = true; aud.preload = 'metadata';
-    aud.style.width = '100%'; zone.appendChild(aud);
+    aud.style.width = '100%';
+    aud.onerror = () => { if (!useFile) fallback(); };
+    zone.appendChild(aud);
   }
 }
 
 function displayFromBlob(file, zone, relativePath) { displayInZone(file, zone, relativePath, true); }
 
-function clearMediaZone(zone) {
+async function deleteAssetFile(relativePath) {
+  if (!relativePath) return;
+  if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) return;
+  if (!assetDirHandle) {
+    try {
+      assetDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    } catch (err) {
+      showToast('⚠️ Directory access denied. File only removed from view.');
+      return;
+    }
+  }
+  const parts = relativePath.split('/');
+  if (parts.length < 3) return;
+  const subfolderName = parts[1];
+  const filename = parts[2];
+  try {
+    const subHandle = await assetDirHandle.getDirectoryHandle(subfolderName);
+    await subHandle.removeEntry(filename);
+    showToast(`🗑️ Deleted ${filename} from disk`);
+  } catch (err) {
+    console.error("Failed to delete file from disk:", err);
+  }
+}
+
+async function clearMediaZone(zone) {
   if (zone.dataset.blobUrl) { URL.revokeObjectURL(zone.dataset.blobUrl); delete zone.dataset.blobUrl; }
-  delete zone.dataset.assetPath;
+  const path = zone.dataset.assetPath;
+  if (path) {
+    await deleteAssetFile(path);
+    delete zone.dataset.assetPath;
+  }
   const type = zone.dataset.mediaType;
   const icon = type === 'image' ? '🌄' : type === 'video' ? '🎬' : '🔊';
   const label = type === 'image' ? 'Click to Add Image' : type === 'video' ? 'Click to Add Video' : 'Click to Add Audio';
@@ -569,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('#sheetContainer .media-zone').forEach(zone => {
     zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
     zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); if (e.dataTransfer.files.length > 0) { currentMediaZone = zone; handleFileImport(e.dataTransfer.files[0]); } });
+    zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); if (e.dataTransfer.files.length > 0) { currentMediaZone = zone; handleFileImport(e.dataTransfer.files[0], zone); } });
   });
 });
 
