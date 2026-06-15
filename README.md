@@ -6,6 +6,7 @@ Is a Character Model Sheet-SKILLS for Video generation that work on AGENT
 
 CMS‑VFM is an engineering-oriented specification for video generation. By defining characters and scripts upfront, it ensures consistent character appearance, proportions, and developmental continuity across long narratives, multi-shot sequences, and cross-scene transitions—enabling smooth visual coherence throughout the entire story.
 
+It’s a unified standard project for producing film and television content, designed to work well with large-scale models, be user-friendly, and support teamwork.
 Based on frontend-slides by @zarazhangrui (MIT License) (<https://github.com/zarazhangrui/frontend-slides>)
 THANKS!
 
