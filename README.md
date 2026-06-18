@@ -6,6 +6,8 @@ Is a Character Model Sheet-SKILLS for Video generation that work on AGENT
 
 CMS‑VFM is an engineering-oriented specification for video generation. By defining characters and scripts upfront, it ensures consistent character appearance, proportions, and developmental continuity across long narratives, multi-shot sequences, and cross-scene transitions—enabling smooth visual coherence throughout the entire story.
 
+You can simply open the HTML file in a browser and write scripts and make settings just like you would with a regular document. The file will be automatically saved to your local device at regular intervals. You can share the file directly or export it as a PDF for team collaboration. You can also use large model agents like Codex or Claude to generate content based on the file’s specifications. These agents can then use video generation models like Seedance or Google VEO to create videos according to the file’s requirements. This makes it very convenient for teams or individuals to coordinate video production or generate videos efficiently.
+
 It’s a unified standard project for producing film and television content, designed to work well with large-scale models, be user-friendly, and support teamwork.
 Based on frontend-slides by @zarazhangrui (MIT License) (<https://github.com/zarazhangrui/frontend-slides>)
 THANKS!
