@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storyboard Design Sheets - CMS-VFM</title>
+<style>
+:root {
+  --primary: #1e293b;     /* Slate 800 */
+  --accent: #f59e0b;      /* Amber 500 */
+  --accent-hover: #d97706;/* Amber 600 */
+  --bg: #f8fafc;          /* Slate 50 */
+  --card-bg: #ffffff;
+  --text: #0f172a;        /* Slate 900 */
+  --text-light: #64748b;  /* Slate 500 */
+  --border: #cbd5e1;      /* Slate 300 */
+  --success: #10b981;     /* Emerald 500 */
+  --danger: #ef4444;      /* Red 500 */
+  --highlight: #fef3c7;   /* Amber 100 */
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  padding: 2rem;
+}
+
+.container { max-width: 1200px; margin: 0 auto; }
+
+h1 { font-size: 2rem; margin-bottom: 0.5rem; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+h2 {
+  font-size: 1.3rem; margin-top: 2rem; margin-bottom: 1rem;
+  padding-bottom: 0.5rem; border-bottom: 2px solid var(--accent);
+  color: var(--primary);
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid var(--border);
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+.field { margin-bottom: 0.8rem; }
+.field label { display: block; font-weight: 600; font-size: 0.8rem; color: var(--text-light); }
+.preset-pills {
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease-in-out;
+}
+.field:focus-within .preset-pills {
+  opacity: 1;
+  pointer-events: auto;
+}
+.preset-pill {
+  font-size: 0.65rem;
+  background: #f1f5f9;
+  color: var(--text-light);
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+  user-select: none;
+}
+.preset-pill:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.field [contenteditable] {
+  min-height: 1.5em;
+  padding: 0.35rem 0.5rem;
+  border: 1px dashed transparent;
+  border-radius: 4px;
+  transition: border-color 0.2s, background 0.2s;
+  background: #fdfdfd;
+}
+.field [contenteditable]:hover { border-color: var(--border); background: #f1f5f9; }
+.field [contenteditable]:focus { border-color: var(--accent); outline: none; background: var(--highlight); }
+
+/* Storyboard Specific: Shot Card Layout */
+.shot-card {
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.shot-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.shot-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+.shot-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.shot-card-title span[contenteditable] {
+  border-bottom: 1px dashed var(--text-light);
+  padding: 0 0.2rem;
+}
+.shot-card-title span[contenteditable]:focus {
+  border-bottom-color: var(--accent);
+}
+
+.shot-card-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.shot-card-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+}
+
+/* Media Zone styling */
+.media-zone {
+  position: relative;
+  width: 100%;
+  border: 2px dashed var(--border);
+  border-radius: 6px;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s;
+}
+.media-zone.media-landscape { aspect-ratio: 16/9; }
+.media-zone:hover { border-color: var(--accent); background: #fef3c7; }
+.media-zone.drag-over { border-color: var(--success); background: #ecfdf5; }
+.media-zone .empty-label { text-align: center; color: var(--text-light); padding: 1.5rem 1rem; pointer-events: none; }
+.media-zone .empty-label .icon { font-size: 2rem; display: block; margin-bottom: 0.4rem; }
+.media-zone .empty-label .hint { font-size: 0.7rem; margin-top: 0.3rem; opacity: 0.7; }
+.media-zone img, .media-zone video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
+.media-zone audio { width: 90%; margin: 1rem auto; display: block; }
+.media-zone .replace-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  text-align: center;
+  padding: 0.4rem;
+  font-size: 0.75rem;
+  transform: translateY(100%);
+  transition: transform 0.2s;
+}
+.media-zone:hover .replace-overlay { transform: translateY(0); }
+.media-zone .remove-btn {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: background 0.2s;
+}
+.media-zone:hover .remove-btn { display: flex; }
+.media-zone .remove-btn:hover { background: var(--danger); }
+
+.media-type-select {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+.media-type-select select {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  outline: none;
+}
+
+/* Dashboard */
+.dashboard {
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid var(--border);
+}
+.dashboard-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+.dashboard-header .project-name { font-weight: 700; font-size: 1.1rem; color: var(--primary); min-width: 140px; padding: 0.2rem; border-bottom: 1px dashed var(--border); }
+.dashboard-header .project-name[contenteditable]:focus { border-bottom-color: var(--accent); outline: none; background: var(--highlight); }
+.item-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.item-card {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+.item-card:hover { border-color: var(--accent); }
+.item-card.active { border-color: var(--accent); background: #fffbeb; font-weight: 600; }
+.item-card .item-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-card .item-actions { display: flex; gap: 2px; margin-left: 4px; }
+.item-card .item-actions button { background: none; border: none; cursor: pointer; font-size: 0.75rem; padding: 2px 4px; border-radius: 4px; color: var(--text-light); transition: color 0.2s; }
+.item-card .item-actions button:hover { color: var(--accent); }
+.item-card .item-actions .del-btn:hover { color: var(--danger); }
+
+/* Toolbar */
+.toolbar {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  padding: 0.6rem 0;
+  z-index: 100;
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+.btn {
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card-bg);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent-hover); background: #fffdf5; }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-hover); color: #fff; }
+.btn-danger { color: var(--danger); }
+.btn-danger:hover { background: #fee2e2; border-color: var(--danger); color: var(--danger); }
+.btn-sm { padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 4px; }
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--primary);
+  color: #fff;
+  padding: 0.7rem 1.3rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 999;
+}
+.toast.show { opacity: 1; }
+
+/* Helpers Zone */
+.helpers-zone {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+.modal-overlay.active { display: flex; }
+.modal { background: #fff; border-radius: 12px; padding: 2rem; width: 90%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); border: 1px solid var(--border); }
+.modal h3 { margin-bottom: 1rem; font-size: 1.1rem; color: var(--primary); }
+.modal .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; flex-wrap: wrap; }
+.modal .modal-actions .btn { flex: 1; text-align: center; justify-content: center; padding: 0.7rem 1rem; }
+.modal .url-input-group { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.modal .url-input-group input { flex: 1; padding: 0.5rem 0.8rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; }
+.modal .url-input-group input:focus { border-color: var(--accent); outline: none; }
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; cursor: zoom-out; }
+.lightbox.active { display: flex; }
+.lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 4px; }
+body.modal-open { overflow: hidden; }
+
+/* Print optimization & layout */
+@media (max-width: 768px) {
+  .shot-card-grid { grid-template-columns: 1fr; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  body { padding: 1rem; }
+}
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    padding: 0 !important;
+  }
+  .container {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .toolbar, .dashboard, .no-print, .modal-overlay, .lightbox, .helpers-zone {
+    display: none !important;
+  }
+  .shot-card {
+    box-shadow: none !important;
+    border: 1.5px solid #000 !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 25px !important;
+    padding: 12px !important;
+    background: #fff !important;
+  }
+  .shot-card-header {
+    border-bottom: 1.5px solid #000 !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 8px !important;
+  }
+  .shot-card-grid {
+    grid-template-columns: 240px 1fr !important;
+    gap: 12px !important;
+  }
+  .media-zone {
+    border: 1px solid #000 !important;
+    background: #fff !important;
+  }
+  .field [contenteditable] {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+  .field label {
+    color: #000 !important;
+    font-weight: 700 !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h3 id="modalTitle">📁 Import Media</h3>
+    <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:1rem;" id="modalHint">Select a file or paste a URL</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="triggerFilePick()">📁 Choose File</button>
+      <button class="btn" onclick="showUrlInput()">🔗 From URL</button>
+    </div>
+    <div class="url-input-group" id="urlInputGroup" style="display:none;">
+      <input type="text" id="urlInput" placeholder="Paste image/video/audio URL here..." onkeydown="if(event.key==='Enter')importFromUrl()">
+      <button class="btn btn-primary" onclick="importFromUrl()">Import</button>
+    </div>
+    <p style="font-size:0.75rem;color:var(--text-light);margin-top:1rem;" id="modalFormats"></p>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="Full size preview">
+</div>
+
+<div class="container">
+
+  <!-- ─── Toolbar ─── -->
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="saveAll()">💾 Save</button>
+    <button class="btn" onclick="exportHTML()">📤 Export HTML</button>
+    <button class="btn" onclick="exportPDF()">📄 Export PDF</button>
+    <button class="btn btn-danger" onclick="resetAll()">🔄 Reset</button>
+    <span style="flex:1"></span>
+    <span style="font-size:0.75rem;color:var(--text-light); display: flex; align-items: center; gap: 8px;">
+      <span>✏️ Click text to edit</span>
+      <span>·</span>
+      <span>Storyboards: <span id="storyboardCount" style="font-weight:bold;">1</span></span>
+    </span>
+  </div>
+
+  <!-- ─── Dashboard: Multi-Storyboard Manager ─── -->
+  <div class="dashboard" id="dashboard">
+    <div class="dashboard-header">
+      <span>📋</span>
+      <span class="project-name" contenteditable="true" id="projectName">My Project</span>
+      <span style="font-size:0.85rem;color:var(--text-light);">— Storyboard Sheets</span>
+      <span style="flex:1"></span>
+      <button class="btn btn-sm btn-primary" onclick="addNewStoryboard()">➕ Add Storyboard</button>
+    </div>
+    <div class="item-bar" id="itemBar"></div>
+  </div>
+
+  <!-- ─── Storyboard Metadata Header ─── -->
+  <div id="sheetContainer">
+    <h1>🎬 Storyboard Design Sheet · <span contenteditable="true" id="sb-name" style="color:var(--accent);">[Storyboard Name]</span></h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;">
+      <p style="color:var(--text-light); font-size: 0.9rem;">
+        Project: <span contenteditable="true" id="sb-project" style="font-weight: 500; color: var(--text);">[Project Name]</span> ·
+        Version: <span contenteditable="true" id="sb-version" style="font-weight: 500; color: var(--text);">1.0</span> ·
+        Updated: <span id="sb-date" style="font-weight: 500; color: var(--text);">2026-06-18</span>
+      </p>
+      
+      <!-- Helpers in header -->
+      <div class="helpers-zone no-print">
+        <button class="btn btn-sm" onclick="sortShotsByNo()" title="Sort shots alphanumerically by Shot No.">🔮 Sort Shots</button>
+        <button class="btn btn-sm" onclick="autoFillShotNumbers()" title="Renumber shots sequentially as 001, 002, 003...">🔢 Auto Shot No.</button>
+        <button class="btn btn-sm" onclick="batchEditScene()" title="Batch edit scene details for all shots in this storyboard">🎨 Batch Scene</button>
+      </div>
+    </div>
+
+    <!-- Description Card -->
+    <div class="card" style="margin-bottom: 1.5rem; padding: 1rem 1.2rem;">
+      <div class="field" style="margin-bottom: 0;">
+        <label>Storyboard Description & Settings</label>
+        <div contenteditable="true" id="sb-description" style="min-height: 2em; line-height: 1.6;">[Storyboard description, style notes, or scene setup...]</div>
+      </div>
+    </div>
+
+    <!-- ─── Dynamic Shots List Container ─── -->
+    <div id="shotsContainer"></div>
+
+    <!-- Bottom Add Shot Action -->
+    <div class="no-print" style="margin-top: 1.5rem; display: flex; justify-content: center;">
+      <button class="btn btn-primary" onclick="addShotAtEnd()" style="padding: 0.6rem 2rem; font-size: 0.9rem;">➕ Add Shot</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast">Saved</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  DATA LAYER — Multi-Item Project (Storyboard Schema)
+// ═══════════════════════════════════════════════
+const STORAGE_KEY = 'cms-vfm-storyboard-template';
+const ITEM_TYPE = 'storyboard';
+let appData = null;
+let currentMediaZone = null;
+let assetDirHandle = null;
+
+function createDefaultShot(shotNo) {
+  return {
+    id: `shot_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    shotNo: shotNo || '001',
+    shotName: 'Untitled Shot',
+    cameraPos: 'Medium Shot',
+    focalLength: '50mm',
+    cameraModel: 'ARRI Alexa Mini LF',
+    colorLook: 'Teal & Orange / Cinematic',
+    introAnim: 'Fade In',
+    transition: 'Cross Dissolve',
+    action: '[Enter shot action, camera movements, and audio cues here...]',
+    duration: '3.0s',
+    tempo: 'Normal',
+    emotion: 'Neutral',
+    sceneNo: 'SC_01',
+    sceneName: 'Main Street',
+    charIds: 'CH_01',
+    charNames: 'Hero',
+    mediaPath: '',
+    mediaType: 'image'
+  };
+}
+
+function createDefaultStoryboard(index) {
+  const id = `${ITEM_TYPE}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
+  const firstShot = createDefaultShot("001");
+  return {
+    id,
+    name: `Storyboard Sheet ${index}`,
+    project: 'My Project',
+    version: '1.0',
+    description: '[Storyboard description, style notes, or scene setup...]',
+    created: new Date().toISOString(),
+    updated: new Date().toISOString(),
+    shots: [firstShot]
+  };
+}
+
+function getDefaultProject() {
+  const sb = createDefaultStoryboard(1);
+  return { projectName: 'My Project', items: [sb], activeItemId: sb.id };
+}
+
+function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) { appData = getDefaultProject(); return; }
+  try {
+    appData = JSON.parse(raw);
+    if (!appData.items || appData.items.length === 0) {
+      const sb = createDefaultStoryboard(1);
+      appData.items = [sb];
+      appData.activeItemId = sb.id;
+    }
+    if (!appData.activeItemId || !appData.items.find(i => i.id === appData.activeItemId)) {
+      appData.activeItemId = appData.items[0].id;
+    }
+  } catch(e) {
+    appData = getDefaultProject();
+  }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+}
+
+// ═══════════════════════════════════════════════
+//  STORYBOARD NAVIGATION & CRUD
+// ═══════════════════════════════════════════════
+function getActiveItem() {
+  return appData.items.find(i => i.id === appData.activeItemId);
+}
+
+function addNewStoryboard() {
+  const n = appData.items.length + 1;
+  const sb = createDefaultStoryboard(n);
+  sb.project = appData.projectName;
+  appData.items.push(sb);
+  switchToStoryboard(sb.id);
+  saveAll();
+  renderDashboard();
+  showToast(`➕ Created "${sb.name}"`);
+}
+
+function switchToStoryboard(id) {
+  const old = getActiveItem();
+  if (old) saveActiveContent(old);
+  appData.activeItemId = id;
+  saveData();
+  renderDashboard();
+  loadActiveContent(getActiveItem());
+}
+
+function duplicateStoryboard(id) {
+  const src = appData.items.find(i => i.id === id);
+  if (!src) return;
+  const sb = createDefaultStoryboard(appData.items.length + 1);
+  sb.name = src.name + ' (Copy)';
+  sb.project = src.project;
+  sb.version = src.version;
+  sb.description = src.description;
+  // Deep clone shots
+  sb.shots = JSON.parse(JSON.stringify(src.shots));
+  sb.shots.forEach(s => {
+    s.id = `shot_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+  });
+  appData.items.push(sb);
+  switchToStoryboard(sb.id);
+  saveAll();
+  renderDashboard();
+  showToast(`📋 Cloned "${src.name}"`);
+}
+
+function renameStoryboard(id, newName) {
+  const item = appData.items.find(i => i.id === id);
+  if (item) { item.name = newName; saveData(); renderDashboard(); }
+}
+
+function deleteStoryboard(id) {
+  if (appData.items.length <= 1) { showToast('⚠️ Cannot delete the last storyboard.'); return; }
+  if (!confirm('Delete this storyboard? All shot data will be lost.')) return;
+  const idx = appData.items.findIndex(i => i.id === id);
+  appData.items = appData.items.filter(i => i.id !== id);
+  if (appData.activeItemId === id) {
+    const newIdx = Math.min(idx, appData.items.length - 1);
+    appData.activeItemId = appData.items[newIdx].id;
+  }
+  saveData();
+  renderDashboard();
+  loadActiveContent(getActiveItem());
+  showToast('🗑️ Deleted');
+}
+
+// ═══════════════════════════════════════════════
+//  SAVE / LOAD CONTENT
+// ═══════════════════════════════════════════════
+function saveActiveContent(item) {
+  if (!item) return;
+
+  item.name = document.getElementById('sb-name').textContent.trim();
+  item.project = document.getElementById('sb-project').textContent.trim();
+  item.version = document.getElementById('sb-version').textContent.trim();
+  item.description = document.getElementById('sb-description').innerHTML;
+  item.updated = new Date().toISOString();
+
+  // Read shots from DOM
+  item.shots = [];
+  document.querySelectorAll('.shot-card').forEach(card => {
+    const id = card.dataset.shotId;
+    const mediaZone = card.querySelector('.media-zone');
+    const mediaPath = mediaZone ? mediaZone.dataset.assetPath || '' : '';
+    const mediaType = mediaZone ? mediaZone.dataset.mediaType || 'image' : 'image';
+
+    const shot = {
+      id: id,
+      shotNo: card.querySelector('.field-shot-no').textContent.trim(),
+      shotName: card.querySelector('.field-shot-name').textContent.trim(),
+      cameraPos: card.querySelector('.field-camera-pos').textContent.trim(),
+      focalLength: card.querySelector('.field-focal-length').textContent.trim(),
+      cameraModel: card.querySelector('.field-camera-model').textContent.trim(),
+      colorLook: card.querySelector('.field-color-look').textContent.trim(),
+      introAnim: card.querySelector('.field-intro-anim').textContent.trim(),
+      transition: card.querySelector('.field-transition').textContent.trim(),
+      action: card.querySelector('.field-action').innerHTML,
+      duration: card.querySelector('.field-duration').textContent.trim(),
+      tempo: card.querySelector('.field-tempo').textContent.trim(),
+      emotion: card.querySelector('.field-emotion').textContent.trim(),
+      sceneNo: card.querySelector('.field-scene-no').textContent.trim(),
+      sceneName: card.querySelector('.field-scene-name').textContent.trim(),
+      charIds: card.querySelector('.field-char-ids').textContent.trim(),
+      charNames: card.querySelector('.field-char-names').textContent.trim(),
+      mediaPath: mediaPath,
+      mediaType: mediaType
+    };
+    item.shots.push(shot);
+  });
+}
+
+function loadActiveContent(item) {
+  if (!item) return;
+
+  document.getElementById('sb-date').textContent = new Date().toISOString().slice(0, 10);
+  document.getElementById('sb-name').textContent = item.name || 'Storyboard Sheet';
+  document.getElementById('sb-project').textContent = item.project || 'My Project';
+  document.getElementById('sb-version').textContent = item.version || '1.0';
+  document.getElementById('sb-description').innerHTML = item.description || '[Storyboard description, style notes, or scene setup...]';
+
+  const container = document.getElementById('shotsContainer');
+  container.innerHTML = '';
+
+  if (item.shots && item.shots.length > 0) {
+    item.shots.forEach(shot => {
+      container.appendChild(createShotCardDOM(shot));
+    });
+  } else {
+    const defaultShot = createDefaultShot("001");
+    item.shots = [defaultShot];
+    container.appendChild(createShotCardDOM(defaultShot));
+  }
+
+  initDragAndDrop();
+}
+
+function saveAll() {
+  const item = getActiveItem();
+  if (item) saveActiveContent(item);
+  const pn = document.getElementById('projectName');
+  if (pn) appData.projectName = pn.textContent.trim();
+  saveData();
+  document.getElementById('sb-date').textContent = new Date().toISOString().slice(0, 10);
+  showToast('💾 Saved');
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER DASHBOARD
+// ═══════════════════════════════════════════════
+function renderDashboard() {
+  const bar = document.getElementById('itemBar');
+  if (!bar) return;
+  bar.innerHTML = '';
+  const pn = document.getElementById('projectName');
+  if (pn) pn.textContent = appData.projectName || 'My Project';
+  const cnt = document.getElementById('storyboardCount');
+  if (cnt) cnt.textContent = appData.items.length;
+
+  appData.items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'item-card' + (item.id === appData.activeItemId ? ' active' : '');
+    card.onclick = () => switchToStoryboard(item.id);
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'item-name';
+    nameSpan.textContent = item.name;
+    card.appendChild(nameSpan);
+
+    const actions = document.createElement('span');
+    actions.className = 'item-actions';
+
+    const renameBtn = document.createElement('button');
+    renameBtn.textContent = '✎';
+    renameBtn.title = 'Rename';
+    renameBtn.onclick = e => { e.stopPropagation(); doRename(item.id); };
+    actions.appendChild(renameBtn);
+
+    const dupBtn = document.createElement('button');
+    dupBtn.textContent = '📋';
+    dupBtn.title = 'Duplicate';
+    dupBtn.onclick = e => { e.stopPropagation(); duplicateStoryboard(item.id); };
+    actions.appendChild(dupBtn);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'del-btn';
+    delBtn.textContent = '✕';
+    delBtn.title = 'Delete';
+    delBtn.onclick = e => { e.stopPropagation(); deleteStoryboard(item.id); };
+    actions.appendChild(delBtn);
+
+    card.appendChild(actions);
+    bar.appendChild(card);
+  });
+}
+
+function doRename(id) {
+  const item = appData.items.find(i => i.id === id);
+  if (!item) return;
+  const newName = prompt('Enter storyboard project name:', item.name);
+  if (newName && newName.trim()) renameStoryboard(id, newName.trim());
+}
+
+// ═══════════════════════════════════════════════
+//  SHOT CARD DOM GENERATION
+// ═══════════════════════════════════════════════
+function createShotCardDOM(shot) {
+  const card = document.createElement('div');
+  card.className = 'shot-card card';
+  card.dataset.shotId = shot.id;
+
+  card.innerHTML = `
+    <div class="shot-card-header">
+      <span class="shot-card-title">
+        🎥 Shot No. <span contenteditable="true" class="field-shot-no" onblur="validateShotNo(this)">${shot.shotNo}</span> - <span contenteditable="true" class="field-shot-name">${shot.shotName}</span>
+      </span>
+      <div class="shot-card-actions no-print">
+        <button class="btn btn-sm" onclick="moveShot('${shot.id}', -1)" title="Move Up">▲</button>
+        <button class="btn btn-sm" onclick="moveShot('${shot.id}', 1)" title="Move Down">▼</button>
+        <button class="btn btn-sm" onclick="duplicateShot('${shot.id}')" title="Duplicate Shot">📋</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteShot('${shot.id}')" title="Delete Shot">✕</button>
+      </div>
+    </div>
+    
+    <div class="shot-card-grid">
+      <!-- Media Column -->
+      <div class="shot-media-column">
+        <div class="media-zone media-landscape" data-media-type="${shot.mediaType}" data-prefix="shot_${shot.id}" onclick="openImport(this)">
+          <!-- Displayed content generated below -->
+        </div>
+        <div class="media-type-select no-print">
+          <label>Type:</label>
+          <select onchange="changeMediaType(this, '${shot.id}')">
+            <option value="image" ${shot.mediaType === 'image' ? 'selected' : ''}>📷 Image / Sketch</option>
+            <option value="video" ${shot.mediaType === 'video' ? 'selected' : ''}>🎬 Video / Animatic</option>
+            <option value="audio" ${shot.mediaType === 'audio' ? 'selected' : ''}>🎤 Audio / Voiceover</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Info Column -->
+      <div class="shot-fields-column">
+        <div class="grid-2">
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Scene No.</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, 'SC_01')">SC_01</span>
+                <span class="preset-pill" onclick="setPreset(this, 'SC_02')">SC_02</span>
+                <span class="preset-pill" onclick="setPreset(this, 'SC_03')">SC_03</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-scene-no">${shot.sceneNo}</div>
+          </div>
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Scene Name</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, 'Street')">Street</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Bedroom')">Bedroom</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Studio')">Studio</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-scene-name">${shot.sceneName}</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Camera Pos / Angle</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, 'Wide Shot')">Wide</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Medium Shot')">Medium</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Close-up')">Close-up</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-camera-pos">${shot.cameraPos}</div>
+          </div>
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Focal Length</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, '24mm')">24mm</span>
+                <span class="preset-pill" onclick="setPreset(this, '50mm')">50mm</span>
+                <span class="preset-pill" onclick="setPreset(this, '85mm')">85mm</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-focal-length">${shot.focalLength}</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Camera Model</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, 'Alexa LF')">Alexa LF</span>
+                <span class="preset-pill" onclick="setPreset(this, 'RED Raptor')">RED</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Sony FX9')">Sony FX9</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-camera-model">${shot.cameraModel || 'ARRI Alexa Mini LF'}</div>
+          </div>
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Color Look / Grading</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, 'Teal & Orange')">Teal/Orange</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Warm Gold')">Warm Gold</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Noir B&W')">B&W</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-color-look">${shot.colorLook || 'Teal & Orange / Cinematic'}</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Character IDs</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, 'CH_01')">CH_01</span>
+                <span class="preset-pill" onclick="setPreset(this, 'CH_02')">CH_02</span>
+                <span class="preset-pill" onclick="setPreset(this, 'CH_01, CH_02')">Both</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-char-ids">${shot.charIds}</div>
+          </div>
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Character Names</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, 'Hero')">Hero</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Villain')">Villain</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Hero, Sidekick')">Both</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-char-names">${shot.charNames}</div>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Duration</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, '1.5s')">1.5s</span>
+                <span class="preset-pill" onclick="setPreset(this, '3.0s')">3.0s</span>
+                <span class="preset-pill" onclick="setPreset(this, '5.0s')">5.0s</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-duration">${shot.duration}</div>
+          </div>
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Rhythm / Tempo</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, 'Slow')">Slow</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Normal')">Normal</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Fast')">Fast</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-tempo">${shot.tempo}</div>
+          </div>
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Emotion / Mood</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, 'Neutral')">Neutral</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Tense')">Tense</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Joyful')">Joyful</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-emotion">${shot.emotion}</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Intro Animation</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, 'Fade In')">Fade In</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Zoom In')">Zoom In</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Pan Left')">Pan Left</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-intro-anim">${shot.introAnim || 'Fade In'}</div>
+          </div>
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+              <label>Transition</label>
+              <div class="preset-pills no-print">
+                <span class="preset-pill" onclick="setPreset(this, 'Cross Dissolve')">Dissolve</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Cut')">Cut</span>
+                <span class="preset-pill" onclick="setPreset(this, 'Fade to Black')">Fade Black</span>
+              </div>
+            </div>
+            <div contenteditable="true" class="field-transition">${shot.transition || 'Cross Dissolve'}</div>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Action & Sound Notes</label>
+          <div contenteditable="true" class="field-action">${shot.action}</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const zone = card.querySelector('.media-zone');
+  if (shot.mediaPath) {
+    displayInZone(null, zone, shot.mediaPath, false);
+  } else {
+    resetMediaZoneUI(zone, shot.mediaType);
+  }
+
+  return card;
+}
+
+function validateShotNo(el) {
+  if (!el.textContent.trim()) {
+    el.textContent = "001";
+  }
+}
+
+function setPreset(pillEl, value) {
+  const field = pillEl.closest('.field').querySelector('[contenteditable]');
+  if (field) {
+    field.textContent = value;
+    saveAll();
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  SHOT MANAGEMENT (CRUD)
+// ═══════════════════════════════════════════════
+function addShotAtEnd() {
+  const item = getActiveItem();
+  if (!item) return;
+
+  saveActiveContent(item);
+
+  let nextNum = 1;
+  if (item.shots && item.shots.length > 0) {
+    const lastShot = item.shots[item.shots.length - 1];
+    const match = lastShot.shotNo.match(/\d+/);
+    if (match) {
+      nextNum = parseInt(match[0]) + 1;
+    } else {
+      nextNum = item.shots.length + 1;
+    }
+  }
+  const paddedNo = String(nextNum).padStart(3, '0');
+
+  const newShot = createDefaultShot(paddedNo);
+  if (item.shots && item.shots.length > 0) {
+    const last = item.shots[item.shots.length - 1];
+    newShot.sceneNo = last.sceneNo;
+    newShot.sceneName = last.sceneName;
+    newShot.charIds = last.charIds;
+    newShot.charNames = last.charNames;
+    newShot.cameraModel = last.cameraModel || '';
+    newShot.colorLook = last.colorLook || '';
+    newShot.introAnim = last.introAnim || '';
+    newShot.transition = last.transition || '';
+  }
+
+  item.shots.push(newShot);
+  saveData();
+  
+  const container = document.getElementById('shotsContainer');
+  const card = createShotCardDOM(newShot);
+  container.appendChild(card);
+  
+  initDragAndDrop();
+  card.scrollIntoView({ behavior: 'smooth' });
+  showToast('➕ Added Shot ' + paddedNo);
+}
+
+function duplicateShot(shotId) {
+  const item = getActiveItem();
+  if (!item) return;
+
+  saveActiveContent(item);
+
+  const idx = item.shots.findIndex(s => s.id === shotId);
+  if (idx === -1) return;
+
+  const src = item.shots[idx];
+  const copy = JSON.parse(JSON.stringify(src));
+  copy.id = `shot_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+  
+  const match = copy.shotNo.match(/\d+/);
+  if (match) {
+    const val = parseInt(match[0]);
+    const strVal = String(val).padStart(match[0].length, '0');
+    copy.shotNo = copy.shotNo.replace(strVal, strVal + '_copy');
+  } else {
+    copy.shotNo += '_copy';
+  }
+
+  item.shots.splice(idx + 1, 0, copy);
+  saveData();
+  loadActiveContent(item);
+  showToast('📋 Duplicated Shot ' + src.shotNo);
+}
+
+function deleteShot(shotId) {
+  const item = getActiveItem();
+  if (!item) return;
+
+  saveActiveContent(item);
+
+  if (item.shots.length <= 1) {
+    showToast('⚠️ Cannot delete the last shot.');
+    return;
+  }
+
+  const idx = item.shots.findIndex(s => s.id === shotId);
+  if (idx === -1) return;
+
+  const targetShot = item.shots[idx];
+  if (!confirm(`Delete shot ${targetShot.shotNo}?`)) return;
+
+  item.shots.splice(idx, 1);
+  saveData();
+  loadActiveContent(item);
+  showToast('🗑️ Deleted Shot ' + targetShot.shotNo);
+}
+
+function moveShot(shotId, direction) {
+  const item = getActiveItem();
+  if (!item) return;
+
+  saveActiveContent(item);
+
+  const idx = item.shots.findIndex(s => s.id === shotId);
+  if (idx === -1) return;
+
+  const newIdx = idx + direction;
+  if (newIdx < 0 || newIdx >= item.shots.length) return;
+
+  const temp = item.shots[idx];
+  item.shots[idx] = item.shots[newIdx];
+  item.shots[newIdx] = temp;
+
+  saveData();
+  loadActiveContent(item);
+  
+  const card = document.querySelector(`.shot-card[data-shot-id="${shotId}"]`);
+  if (card) {
+    card.style.background = 'var(--highlight)';
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => { card.style.background = ''; }, 1000);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  MEDIA TYPE & INPUT MANAGEMENT
+// ═══════════════════════════════════════════════
+function changeMediaType(selectEl, shotId) {
+  const newType = selectEl.value;
+  const card = selectEl.closest('.shot-card');
+  const zone = card.querySelector('.media-zone');
+  
+  if (zone.dataset.blobUrl) {
+    URL.revokeObjectURL(zone.dataset.blobUrl);
+    delete zone.dataset.blobUrl;
+  }
+  
+  delete zone.dataset.assetPath;
+  zone.dataset.mediaType = newType;
+  
+  resetMediaZoneUI(zone, newType);
+}
+
+function resetMediaZoneUI(zone, type) {
+  zone.innerHTML = '';
+  zone.dataset.mediaType = type;
+  
+  let icon = '📷';
+  let label = 'Click to Add Sketch/Frame';
+  let hint = 'jpg, png, webp';
+  
+  if (type === 'video') {
+    icon = '🎬';
+    label = 'Click to Add Video/Animatic';
+    hint = 'mp4, webm';
+  } else if (type === 'audio') {
+    icon = '🎤';
+    label = 'Click to Add Audio/Voiceover';
+    hint = 'mp3, wav, ogg';
+  }
+
+  zone.innerHTML = `
+    <div class="empty-label">
+      <span class="icon">${icon}</span>
+      <span>${label}</span>
+      <span class="hint">${hint} · Drag & drop support</span>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════
+//  BATCH OPERATIONS & HELPER TOOLS
+// ═══════════════════════════════════════════════
+function sortShotsByNo() {
+  const item = getActiveItem();
+  if (!item || !item.shots || item.shots.length <= 1) return;
+
+  saveActiveContent(item);
+
+  item.shots.sort((a, b) => {
+    const numA = parseFloat(a.shotNo) || 0;
+    const numB = parseFloat(b.shotNo) || 0;
+    if (numA !== numB) return numA - numB;
+    return a.shotNo.localeCompare(b.shotNo, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  saveData();
+  loadActiveContent(item);
+  showToast('🔮 Sorted shots by Shot No.');
+}
+
+function autoFillShotNumbers() {
+  const item = getActiveItem();
+  if (!item || !item.shots || item.shots.length === 0) return;
+
+  if (!confirm('Renumber all shots in this storyboard sequentially as 001, 002, 003...? This will overwrite all current shot numbers.')) return;
+
+  saveActiveContent(item);
+
+  item.shots.forEach((shot, index) => {
+    shot.shotNo = String(index + 1).padStart(3, '0');
+  });
+
+  saveData();
+  loadActiveContent(item);
+  showToast('🔢 Renumbered shots sequentially.');
+}
+
+function batchEditScene() {
+  const item = getActiveItem();
+  if (!item || !item.shots || item.shots.length === 0) return;
+
+  const sceneNo = prompt('Enter Scene Number for all shots (e.g. SC_01):');
+  if (sceneNo === null) return;
+
+  const sceneName = prompt('Enter Scene Name for all shots (e.g. Main Street):');
+  if (sceneName === null) return;
+
+  saveActiveContent(item);
+
+  item.shots.forEach(shot => {
+    if (sceneNo.trim()) shot.sceneNo = sceneNo.trim();
+    if (sceneName.trim()) shot.sceneName = sceneName.trim();
+  });
+
+  saveData();
+  loadActiveContent(item);
+  showToast('🎨 Updated scene details for all shots.');
+}
+
+// ═══════════════════════════════════════════════
+//  IMPORT MODAL
+// ═══════════════════════════════════════════════
+const ACCEPT_TYPES = {
+  image: { accept: 'image/*', hint: 'Formats: jpg, png, webp, gif, svg' },
+  video: { accept: 'video/*', hint: 'Formats: mp4, webm, mov' },
+  audio: { accept: 'audio/*', hint: 'Formats: mp3, wav, ogg, m4a' }
+};
+
+function openImport(zone) {
+  currentMediaZone = zone;
+  const type = zone.dataset.mediaType || 'image';
+  const info = ACCEPT_TYPES[type] || ACCEPT_TYPES.image;
+
+  document.getElementById('modalTitle').textContent = type === 'image' ? '📷 Import Image / Sketch' : type === 'video' ? '🎬 Import Video / Animatic' : '🎤 Import Audio / Voiceover';
+  document.getElementById('modalHint').textContent = `Click to select or paste a URL for the ${type}`;
+  document.getElementById('modalFormats').textContent = info.hint;
+  document.getElementById('urlInput').value = '';
+  document.getElementById('urlInputGroup').style.display = 'none';
+  document.getElementById('importModal').classList.add('active');
+  document.body.classList.add('modal-open');
+  window._pendingAccept = info.accept;
+}
+
+function closeModal() {
+  document.getElementById('importModal').classList.remove('active');
+  document.body.classList.remove('modal-open');
+  currentMediaZone = null;
+}
+
+function triggerFilePick() {
+  const accept = window._pendingAccept || 'image/*';
+  const zone = currentMediaZone;
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = accept;
+  input.onchange = e => {
+    if (e.target.files.length > 0) handleFileImport(e.target.files[0], zone);
+  };
+  input.click();
+  closeModal();
+}
+
+function showUrlInput() {
+  document.getElementById('urlInputGroup').style.display = 'flex';
+}
+
+function importFromUrl() {
+  const url = document.getElementById('urlInput').value.trim();
+  if (!url) return;
+  const zone = currentMediaZone;
+  closeModal();
+  displayInZone(null, zone, url, false);
+  showToast('🔗 External link loaded');
+  saveAll();
+}
+
+// ═══════════════════════════════════════════════
+//  ASSET COPYING & FILESYSTEM SYSTEM
+// ═══════════════════════════════════════════════
+async function handleFileImport(file, passedZone) {
+  const zone = passedZone || currentMediaZone;
+  if (!zone) return;
+  const type = zone.dataset.mediaType || 'image';
+  const prefix = zone.dataset.prefix || 'shot';
+  
+  const ts = new Date().toISOString().slice(0,19).replace(/[:-]/g, '');
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const filename = `${prefix}_${ts}_${safeName}`;
+  
+  let subfolder = 'images/';
+  if (type === 'audio') subfolder = 'audios/';
+  else if (type === 'video') subfolder = 'videos/';
+  
+  const relativePath = `Asset Files/${subfolder}${filename}`;
+  
+  try {
+    await copyToAssetFolder(file, subfolder, filename, relativePath, zone);
+  } catch (err) {
+    showToast('⚠️ Directory access denied. Using embedded preview.');
+    displayFromBlob(file, zone, relativePath);
+  }
+}
+
+async function copyToAssetFolder(file, subfolder, filename, relativePath, zone) {
+  if (!assetDirHandle) {
+    assetDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+  }
+  let subHandle;
+  const cleanSubfolderName = subfolder.replace('/', '');
+  try {
+    subHandle = await assetDirHandle.getDirectoryHandle(cleanSubfolderName);
+  } catch {
+    subHandle = await assetDirHandle.getDirectoryHandle(cleanSubfolderName, { create: true });
+  }
+  const fileHandle = await subHandle.getFileHandle(filename, { create: true });
+  const writable = await fileHandle.createWritable();
+  await writable.write(file);
+  await writable.close();
+  
+  displayInZone(file, zone, relativePath, true);
+  showToast(`✅ Copied to ${relativePath}`);
+}
+
+function displayInZone(file, zone, relativePath, useFile) {
+  const type = zone.dataset.mediaType || 'image';
+  
+  if (zone.dataset.blobUrl) {
+    URL.revokeObjectURL(zone.dataset.blobUrl);
+    delete zone.dataset.blobUrl;
+  }
+
+  if (useFile && zone.dataset.assetPath && zone.dataset.assetPath !== relativePath) {
+    deleteAssetFile(zone.dataset.assetPath);
+  }
+
+  zone.innerHTML = '';
+  
+  const rmBtn = document.createElement('button');
+  rmBtn.className = 'remove-btn no-print';
+  rmBtn.innerHTML = '✕';
+  rmBtn.onclick = async e => {
+    e.stopPropagation();
+    await clearMediaZone(zone);
+  };
+  zone.appendChild(rmBtn);
+
+  const ovl = document.createElement('div');
+  ovl.className = 'replace-overlay no-print';
+  ovl.textContent = '🔄 Click to Replace';
+  zone.appendChild(ovl);
+
+  let url;
+  if (useFile) {
+    url = URL.createObjectURL(file);
+    zone.dataset.blobUrl = url;
+  } else {
+    url = relativePath;
+  }
+  
+  zone.dataset.assetPath = relativePath;
+
+  const fallback = () => {
+    const fname = relativePath.split('/').pop();
+    const icon = type === 'image' ? '📷' : type === 'video' ? '🎬' : '🎤';
+    zone.querySelectorAll('.empty-label, img, video, audio').forEach(el => el.remove());
+    const errDiv = document.createElement('div');
+    errDiv.className = 'empty-label';
+    errDiv.innerHTML = `<span class="icon">${icon}</span><span style="font-size:0.8rem; word-break:break-all;">${fname}</span><span class="hint">Saved reference</span>`;
+    zone.appendChild(errDiv);
+  };
+
+  if (type === 'image') {
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = relativePath;
+    img.loading = 'lazy';
+    img.onclick = e => {
+      e.stopPropagation();
+      openLightbox(img.src);
+    };
+    img.onerror = () => { if (!useFile) fallback(); };
+    zone.appendChild(img);
+  } else if (type === 'video') {
+    const vid = document.createElement('video');
+    vid.src = url;
+    vid.controls = true;
+    vid.preload = 'metadata';
+    vid.playsInline = true;
+    vid.style.width = '100%';
+    vid.style.height = '100%';
+    vid.style.objectFit = 'contain';
+    vid.onerror = () => { if (!useFile) fallback(); };
+    zone.appendChild(vid);
+  } else if (type === 'audio') {
+    const aud = document.createElement('audio');
+    aud.src = url;
+    aud.controls = true;
+    aud.preload = 'metadata';
+    aud.style.width = '90%';
+    aud.onerror = () => { if (!useFile) fallback(); };
+    zone.appendChild(aud);
+  }
+}
+
+function displayFromBlob(file, zone, relativePath) {
+  displayInZone(file, zone, relativePath, true);
+}
+
+async function deleteAssetFile(relativePath) {
+  if (!relativePath) return;
+  if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) return;
+  if (!assetDirHandle) {
+    try {
+      assetDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    } catch (err) {
+      showToast('⚠️ Directory access denied. File only removed from view.');
+      return;
+    }
+  }
+  const parts = relativePath.split('/');
+  if (parts.length < 3) return;
+  const subfolderName = parts[1];
+  const filename = parts[2];
+  try {
+    const subHandle = await assetDirHandle.getDirectoryHandle(subfolderName);
+    await subHandle.removeEntry(filename);
+    showToast(`🗑️ Deleted ${filename} from disk`);
+  } catch (err) {
+    console.error("Failed to delete file from disk:", err);
+  }
+}
+
+async function clearMediaZone(zone) {
+  if (zone.dataset.blobUrl) {
+    URL.revokeObjectURL(zone.dataset.blobUrl);
+    delete zone.dataset.blobUrl;
+  }
+  const path = zone.dataset.assetPath;
+  if (path) {
+    await deleteAssetFile(path);
+    delete zone.dataset.assetPath;
+  }
+  const type = zone.dataset.mediaType || 'image';
+  resetMediaZoneUI(zone, type);
+}
+
+// Lightbox
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('active');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+}
+
+// Drag & Drop Init
+function initDragAndDrop() {
+  document.querySelectorAll('.media-zone').forEach(zone => {
+    if (zone._dragBound) return;
+    zone._dragBound = true;
+    
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    });
+    zone.addEventListener('dragleave', () => {
+      zone.classList.remove('drag-over');
+    });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (e.dataTransfer.files.length > 0) {
+        handleFileImport(e.dataTransfer.files[0], zone);
+      }
+    });
+  });
+}
+
+// Toast Display
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT FUNCTIONS (HTML & PDF)
+// ═══════════════════════════════════════════════
+function exportHTML() {
+  saveAll();
+  const item = getActiveItem();
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  const name = item ? item.name : 'Storyboard';
+  a.href = URL.createObjectURL(blob);
+  a.download = `${name}_Storyboard_Sheet.html`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('📤 Exported');
+}
+
+function exportPDF() {
+  const item = getActiveItem();
+  if (item) {
+    sortShotsByNo();
+  }
+  window.print();
+}
+
+function resetAll() {
+  if (confirm('Reset all data? This cannot be undone.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  renderDashboard();
+  const activeItem = getActiveItem();
+  if (activeItem) {
+    loadActiveContent(activeItem);
+  }
+
+  setInterval(saveAll, 30000);
+  window.addEventListener('beforeunload', saveAll);
+
+  // Prevent blur when clicking preset pills
+  document.addEventListener('mousedown', e => {
+    if (e.target.classList.contains('preset-pill')) {
+      e.preventDefault();
+    }
+  });
+
+  document.getElementById('importModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+});
+</script>
+</body>
+</html>
